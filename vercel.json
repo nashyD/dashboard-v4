@@ -1,6 +1,4 @@
-{                                                                                                                                                                                                                                               
-    "version": 2,
-    "rewrites": [                                                                                                                                                                                                                                 
-      { "source": "/api/chat", "destination": "/api/chat.js" }
-    ]                                                                                                                                                                                                                                             
-  }
+{
+  "buildCommand": "",
+  "outputDirectory": "."
+}
