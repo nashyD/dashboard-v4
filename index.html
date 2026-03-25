@@ -210,6 +210,69 @@ if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('sw.js').catch(() => {});
 }
 
+// ─── Starter Templates ────────────────────────────────
+const TEMPLATES = {
+  foundational: {
+    name: "Foundational",
+    desc: "The essential daily stack. Covers recovery, cognition, and longevity basics.",
+    icon: "🧬",
+    color: "#32d74b",
+    supplements: [
+      { id:"t1", name:"Creatine Monohydrate", dose:"5g", timing:"Morning", category:"Performance", notes:"Daily. Most researched supplement in existence.", active:true, cost:0.10, remaining:60, fasted:true },
+      { id:"t2", name:"Omega-3 Fish Oil", dose:"2g", timing:"With meal", category:"Essential", notes:"High EPA/DHA. Take with fat-containing meal.", active:true, cost:0.35, remaining:50, fasted:false },
+      { id:"t3", name:"Vitamin D3 + K2", dose:"5000 IU / 100mcg", timing:"With meal", category:"Essential", notes:"Fat-soluble — always with food.", active:true, cost:0.25, remaining:80, fasted:false },
+      { id:"t4", name:"Magnesium Glycinate", dose:"400mg", timing:"Evening", category:"Essential", notes:"Highly bioavailable. Supports sleep and recovery.", active:true, cost:0.20, remaining:60, fasted:true },
+    ]
+  },
+  nootropic: {
+    name: "Nootropic Focus",
+    desc: "Cognitive enhancement stack. Memory, focus, and neuroprotection.",
+    icon: "🧠",
+    color: "#bf5af2",
+    supplements: [
+      { id:"t5", name:"Lion's Mane", dose:"1000mg", timing:"Morning", category:"Nootropic", notes:"Fruiting body extract. NGF support.", active:true, cost:0.55, remaining:30, fasted:true },
+      { id:"t6", name:"L-Theanine", dose:"200mg", timing:"Morning", category:"Nootropic", notes:"Stack with caffeine for focused calm.", active:true, cost:0.12, remaining:100, fasted:true },
+      { id:"t7", name:"Alpha-GPC", dose:"300mg", timing:"Morning", category:"Nootropic", notes:"Choline source. Acetylcholine precursor.", active:true, cost:0.40, remaining:45, fasted:true },
+      { id:"t8", name:"Omega-3 Fish Oil", dose:"2g", timing:"With meal", category:"Essential", notes:"DHA critical for brain membrane fluidity.", active:true, cost:0.35, remaining:50, fasted:false },
+      { id:"t9", name:"Creatine Monohydrate", dose:"5g", timing:"Morning", category:"Performance", notes:"Cognitive benefits alongside physical.", active:true, cost:0.10, remaining:60, fasted:true },
+    ]
+  },
+  athletic: {
+    name: "Athletic Performance",
+    desc: "Strength, endurance, and recovery. Built for serious training.",
+    icon: "🏋️",
+    color: "#ff2d55",
+    supplements: [
+      { id:"t10", name:"Creatine Monohydrate", dose:"7g", timing:"Morning", category:"Performance", notes:"Higher dose for loading/saturation.", active:true, cost:0.15, remaining:60, fasted:true },
+      { id:"t11", name:"Citrulline Malate", dose:"8g", timing:"Pre-workout", category:"Performance", notes:"Nitric oxide precursor. Endurance + pump.", active:true, cost:0.30, remaining:40, fasted:true },
+      { id:"t12", name:"Beta-Alanine", dose:"3.2g", timing:"Pre-workout", category:"Performance", notes:"Carnosine buffer. Delays fatigue.", active:true, cost:0.18, remaining:50, fasted:true },
+      { id:"t13", name:"KSM-66 Ashwagandha", dose:"600mg", timing:"Morning", category:"Adaptogen", notes:"Cortisol modulation. Recovery support.", active:true, cost:0.45, remaining:45, fasted:true },
+      { id:"t14", name:"Omega-3 Fish Oil", dose:"2g", timing:"With meal", category:"Essential", notes:"Anti-inflammatory. Joint support.", active:true, cost:0.35, remaining:50, fasted:false },
+      { id:"t15", name:"Vitamin D3 + K2", dose:"5000 IU / 100mcg", timing:"With meal", category:"Essential", notes:"Testosterone and bone support.", active:true, cost:0.25, remaining:80, fasted:false },
+    ]
+  },
+  longevity: {
+    name: "Longevity",
+    desc: "Anti-aging and healthspan optimization. Antioxidants and cellular support.",
+    icon: "⏳",
+    color: "#30d5c8",
+    supplements: [
+      { id:"t16", name:"NAC", dose:"600mg", timing:"Morning", category:"Antioxidant", notes:"Glutathione precursor. Master antioxidant support.", active:true, cost:0.20, remaining:90, fasted:true },
+      { id:"t17", name:"Omega-3 Fish Oil", dose:"2g", timing:"With meal", category:"Essential", notes:"Anti-inflammatory. Cardiovascular support.", active:true, cost:0.35, remaining:50, fasted:false },
+      { id:"t18", name:"Vitamin D3 + K2", dose:"5000 IU / 100mcg", timing:"With meal", category:"Essential", notes:"Immune modulation and calcium routing.", active:true, cost:0.25, remaining:80, fasted:false },
+      { id:"t19", name:"CoQ10", dose:"200mg", timing:"With meal", category:"Antioxidant", notes:"Mitochondrial electron transport. Heart health.", active:true, cost:0.50, remaining:30, fasted:false },
+      { id:"t20", name:"Magnesium Glycinate", dose:"400mg", timing:"Evening", category:"Essential", notes:"300+ enzymatic reactions. Most people deficient.", active:true, cost:0.20, remaining:60, fasted:true },
+    ]
+  },
+  blank: {
+    name: "Start Blank",
+    desc: "Build your stack from scratch. Full control from day one.",
+    icon: "✦",
+    color: "#ffd60a",
+    supplements: []
+  }
+};
+
 // ─── State ─────────────────────────────────────────────
 const DEFAULTS = [
   { id:"1", name:"Creatine Monohydrate", dose:"7g", timing:"Morning", category:"Performance", notes:"Daily, mixed with water. Saturate muscle phosphocreatine.", active:true, cost:0.15, remaining:60, fasted:true },
@@ -220,6 +283,49 @@ const DEFAULTS = [
   { id:"6", name:"Vitamin D3 + K2", dose:"5000 IU / 100mcg", timing:"With meal", category:"Essential", notes:"Fat-soluble — always with food.", active:true, cost:0.25, remaining:80, fasted:false },
   { id:"7", name:"L-Theanine", dose:"200mg", timing:"As needed", category:"Nootropic", notes:"Stack with caffeine or use pre-sleep.", active:true, cost:0.12, remaining:100, fasted:true },
 ];
+
+// Molecular/compound data for rich cards
+const COMPOUND_DATA = {
+  "Creatine Monohydrate": {
+    formula: "C₄H₉N₃O₂", mw: "131.13 g/mol", mechanism: ["ATP Resynthesis","Phosphocreatine"],
+    icon: (c) => `<svg viewBox="0 0 56 56" width="56" height="56"><circle cx="28" cy="16" r="4" fill="${c}" opacity="0.9"/><circle cx="16" cy="36" r="4" fill="${c}" opacity="0.7"/><circle cx="40" cy="36" r="4" fill="${c}" opacity="0.7"/><circle cx="28" cy="46" r="3" fill="${c}" opacity="0.5"/><line x1="28" y1="20" x2="16" y2="32" stroke="${c}" stroke-width="1.5" opacity="0.4"/><line x1="28" y1="20" x2="40" y2="32" stroke="${c}" stroke-width="1.5" opacity="0.4"/><line x1="16" y1="40" x2="28" y2="46" stroke="${c}" stroke-width="1.5" opacity="0.4"/><line x1="40" y1="40" x2="28" y2="46" stroke="${c}" stroke-width="1.5" opacity="0.4"/><circle cx="28" cy="16" r="8" fill="none" stroke="${c}" stroke-width="0.5" opacity="0.15"/></svg>`
+  },
+  "KSM-66 Ashwagandha": {
+    formula: "C₂₈H₃₈O₆", mw: "470.60 g/mol", mechanism: ["Cortisol Modulation","GABAergic"],
+    icon: (c) => `<svg viewBox="0 0 56 56" width="56" height="56"><path d="M28 8 L28 20 M22 14 L28 20 L34 14" stroke="${c}" stroke-width="1.5" fill="none" opacity="0.6"/><circle cx="28" cy="28" r="8" fill="none" stroke="${c}" stroke-width="1.5" opacity="0.8"/><circle cx="28" cy="28" r="3" fill="${c}" opacity="0.6"/><path d="M20 28 Q14 28 14 34 Q14 44 28 48 Q42 44 42 34 Q42 28 36 28" fill="none" stroke="${c}" stroke-width="1.2" opacity="0.5"/><circle cx="14" cy="34" r="2" fill="${c}" opacity="0.4"/><circle cx="42" cy="34" r="2" fill="${c}" opacity="0.4"/><circle cx="28" cy="48" r="2" fill="${c}" opacity="0.4"/></svg>`
+  },
+  "Lion's Mane": {
+    formula: "Hericenones", mw: "~390 g/mol", mechanism: ["NGF Synthesis","Neuroplasticity"],
+    icon: (c) => `<svg viewBox="0 0 56 56" width="56" height="56"><ellipse cx="28" cy="24" rx="12" ry="10" fill="none" stroke="${c}" stroke-width="1.2" opacity="0.6"/><path d="M20 30 Q16 38 18 46" stroke="${c}" stroke-width="1.2" fill="none" opacity="0.5"/><path d="M24 32 Q22 40 24 48" stroke="${c}" stroke-width="1.2" fill="none" opacity="0.5"/><path d="M28 34 Q28 42 28 50" stroke="${c}" stroke-width="1.2" fill="none" opacity="0.5"/><path d="M32 32 Q34 40 32 48" stroke="${c}" stroke-width="1.2" fill="none" opacity="0.5"/><path d="M36 30 Q40 38 38 46" stroke="${c}" stroke-width="1.2" fill="none" opacity="0.5"/><circle cx="28" cy="20" r="3" fill="${c}" opacity="0.3"/><circle cx="22" cy="22" r="2" fill="${c}" opacity="0.2"/><circle cx="34" cy="22" r="2" fill="${c}" opacity="0.2"/></svg>`
+  },
+  "NAC": {
+    formula: "C₅H₉NO₃S", mw: "163.19 g/mol", mechanism: ["Glutathione Precursor","Mucolytic"],
+    icon: (c) => `<svg viewBox="0 0 56 56" width="56" height="56"><circle cx="20" cy="20" r="5" fill="none" stroke="${c}" stroke-width="1.5" opacity="0.8"/><circle cx="36" cy="20" r="5" fill="none" stroke="${c}" stroke-width="1.5" opacity="0.8"/><circle cx="28" cy="38" r="5" fill="none" stroke="${c}" stroke-width="1.5" opacity="0.8"/><line x1="24" y1="23" x2="33" y2="23" stroke="${c}" stroke-width="1.2" opacity="0.5"/><line x1="23" y1="25" x2="28" y2="33" stroke="${c}" stroke-width="1.2" opacity="0.5"/><line x1="33" y1="25" x2="28" y2="33" stroke="${c}" stroke-width="1.2" opacity="0.5"/><text x="28" y="42" text-anchor="middle" fill="${c}" font-size="7" font-family="IBM Plex Mono" opacity="0.6">S</text><circle cx="28" cy="10" r="2" fill="${c}" opacity="0.3"/><line x1="28" y1="12" x2="28" y2="17" stroke="${c}" stroke-width="0.8" opacity="0.3"/></svg>`
+  },
+  "Omega-3 Fish Oil": {
+    formula: "C₂₀H₃₀O₂ (EPA)", mw: "302.45 g/mol", mechanism: ["Anti-inflammatory","Membrane Fluidity"],
+    icon: (c) => `<svg viewBox="0 0 56 56" width="56" height="56"><ellipse cx="28" cy="28" rx="18" ry="10" fill="none" stroke="${c}" stroke-width="1.2" opacity="0.4"/><path d="M10 28 Q16 20 22 28 Q28 36 34 28 Q40 20 46 28" stroke="${c}" stroke-width="1.8" fill="none" opacity="0.7" stroke-linecap="round"/><circle cx="14" cy="28" r="2.5" fill="${c}" opacity="0.5"/><circle cx="28" cy="28" r="2.5" fill="${c}" opacity="0.5"/><circle cx="42" cy="28" r="2.5" fill="${c}" opacity="0.5"/><path d="M10 28 Q16 36 22 28" stroke="${c}" stroke-width="0.8" fill="none" opacity="0.2" stroke-dasharray="2 2"/></svg>`
+  },
+  "Vitamin D3 + K2": {
+    formula: "C₂₇H₄₄O (D3)", mw: "384.64 g/mol", mechanism: ["Calcium Routing","Immune Modulation"],
+    icon: (c) => `<svg viewBox="0 0 56 56" width="56" height="56"><circle cx="20" cy="28" r="10" fill="none" stroke="${c}" stroke-width="1.2" opacity="0.5"/><circle cx="36" cy="28" r="10" fill="none" stroke="${c}" stroke-width="1.2" opacity="0.5"/><circle cx="20" cy="28" r="4" fill="${c}" opacity="0.3"/><circle cx="36" cy="28" r="4" fill="${c}" opacity="0.3"/><path d="M28 18 L28 38" stroke="${c}" stroke-width="1" opacity="0.3" stroke-dasharray="2 2"/><circle cx="28" cy="14" r="2" fill="${c}" opacity="0.4"/><circle cx="28" cy="42" r="2" fill="${c}" opacity="0.4"/><text x="20" y="31" text-anchor="middle" fill="${c}" font-size="6" font-family="IBM Plex Mono" opacity="0.7">D3</text><text x="36" y="31" text-anchor="middle" fill="${c}" font-size="6" font-family="IBM Plex Mono" opacity="0.7">K2</text></svg>`
+  },
+  "L-Theanine": {
+    formula: "C₇H₁₄N₂O₃", mw: "174.20 g/mol", mechanism: ["Alpha Waves","GABA Agonist"],
+    icon: (c) => `<svg viewBox="0 0 56 56" width="56" height="56"><path d="M12 40 Q20 10 28 28 Q36 46 44 16" stroke="${c}" stroke-width="2" fill="none" opacity="0.6" stroke-linecap="round"/><circle cx="12" cy="40" r="3" fill="${c}" opacity="0.5"/><circle cx="44" cy="16" r="3" fill="${c}" opacity="0.5"/><circle cx="28" cy="28" r="3" fill="${c}" opacity="0.4"/><path d="M8 28 L48 28" stroke="${c}" stroke-width="0.5" opacity="0.15"/><path d="M8 20 L48 20" stroke="${c}" stroke-width="0.5" opacity="0.1"/><path d="M8 36 L48 36" stroke="${c}" stroke-width="0.5" opacity="0.1"/></svg>`
+  },
+};
+
+function getCompoundIcon(name, color) {
+  const data = COMPOUND_DATA[name];
+  if (data && data.icon) return data.icon(color);
+  // Default molecular icon for unknown compounds
+  return `<svg viewBox="0 0 56 56" width="56" height="56"><circle cx="28" cy="28" r="8" fill="none" stroke="${color}" stroke-width="1.5" opacity="0.6"/><circle cx="28" cy="28" r="3" fill="${color}" opacity="0.4"/><circle cx="28" cy="12" r="3" fill="${color}" opacity="0.3"/><circle cx="42" cy="36" r="3" fill="${color}" opacity="0.3"/><circle cx="14" cy="36" r="3" fill="${color}" opacity="0.3"/><line x1="28" y1="20" x2="28" y2="15" stroke="${color}" stroke-width="1" opacity="0.3"/><line x1="35" y1="32" x2="39" y2="34" stroke="${color}" stroke-width="1" opacity="0.3"/><line x1="21" y1="32" x2="17" y2="34" stroke="${color}" stroke-width="1" opacity="0.3"/></svg>`;
+}
+
+function getCompoundInfo(name) {
+  return COMPOUND_DATA[name] || { formula: "—", mw: "—", mechanism: [] };
+}
 
 const CATEGORIES = ["All","Performance","Adaptogen","Nootropic","Antioxidant","Essential"];
 const TIMINGS = ["Morning","Afternoon","Evening","With meal","Pre-workout","Post-workout","As needed"];
@@ -243,7 +349,21 @@ function loadJSON(key, fallback) {
 }
 function saveJSON(key, val) { try { localStorage.setItem(key, JSON.stringify(val)); } catch {} }
 
+// Profile check — if p-profile exists, user has been onboarded
+const existingProfile = loadJSON("p-profile", null);
+const isOnboarded = existingProfile !== null || loadJSON("p-supps", null) !== null;
+
+// If user has supplements but no profile (legacy/existing user like Nash), auto-create profile
+if (!existingProfile && loadJSON("p-supps", null) !== null) {
+  saveJSON("p-profile", { name: "User", createdAt: new Date().toISOString() });
+}
+
 let state = {
+  onboarded: isOnboarded,
+  profile: existingProfile || (isOnboarded ? { name: "User" } : null),
+  onboardStep: "name", // "name" | "template"
+  onboardName: "",
+  selectedTemplate: null,
   supplements: loadJSON("p-supps", DEFAULTS),
   log: loadJSON("p-log", {}),
   chat: loadJSON("p-chat", []),
@@ -363,6 +483,99 @@ function svgSparkline(data, color, w=80, h=24) {
 // ─── Render ────────────────────────────────────────────
 function render() {
   const app = document.getElementById('app');
+
+  // ═══════════ ONBOARDING ══════════
+  if (!state.onboarded) {
+    let html = '';
+
+    if (state.onboardStep === "name") {
+      html = `<div style="min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:40px 28px;text-align:center">
+        <div class="fade-in">
+          <div style="width:64px;height:64px;border-radius:20px;background:linear-gradient(135deg,var(--red),var(--purple),var(--teal));display:flex;align-items:center;justify-content:center;margin:0 auto 24px;box-shadow:0 8px 32px var(--red-glow)">
+            <div style="font-size:28px;filter:brightness(2)">◉</div>
+          </div>
+          <h1 style="font-size:32px;font-weight:900;letter-spacing:-1px;background:linear-gradient(135deg,var(--red) 0%,var(--purple) 40%,var(--teal) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px">PROTOCOL</h1>
+          <p style="color:var(--text-muted);font-size:13px;margin-bottom:40px;line-height:1.5">Your personal supplement<br>command center</p>
+          
+          <div style="max-width:320px;margin:0 auto;text-align:left">
+            <label class="label" style="display:block;margin-bottom:8px;letter-spacing:2px">WHAT'S YOUR NAME?</label>
+            <input id="onboardNameInput" class="input" value="${escapeAttr(state.onboardName)}" 
+              oninput="state.onboardName=this.value"
+              onkeydown="if(event.key==='Enter'&&state.onboardName.trim())goToTemplates()"
+              placeholder="Enter your name" 
+              style="text-align:center;font-size:16px;padding:14px;margin-bottom:20px"
+              autofocus>
+            <button onclick="goToTemplates()" 
+              style="width:100%;padding:16px;border-radius:14px;border:none;font-size:14px;font-weight:700;cursor:${state.onboardName.trim()?'pointer':'default'};
+              background:${state.onboardName.trim()?'linear-gradient(135deg,var(--red),#bf3050)':'rgba(255,255,255,0.03)'};
+              color:${state.onboardName.trim()?'#fff':'rgba(255,255,255,0.15)'};
+              box-shadow:${state.onboardName.trim()?'0 4px 20px var(--red-glow)':'none'};
+              transition:all 0.3s">Continue</button>
+          </div>
+        </div>
+      </div>`;
+    }
+
+    if (state.onboardStep === "template") {
+      html = `<div style="min-height:100vh;padding:40px 24px 80px">
+        <div class="fade-in">
+          <div style="text-align:center;margin-bottom:32px">
+            <p class="label" style="letter-spacing:3px;margin-bottom:8px">WELCOME, ${escapeHtml(state.onboardName.toUpperCase())}</p>
+            <h2 style="font-size:22px;font-weight:800;color:#fff;margin-bottom:6px">Choose Your Starting Stack</h2>
+            <p style="color:var(--text-muted);font-size:12px">Pick a template or start blank. You can customize everything later.</p>
+          </div>
+          
+          <div style="display:flex;flex-direction:column;gap:12px;max-width:400px;margin:0 auto">`;
+
+      Object.entries(TEMPLATES).forEach(([key, tmpl]) => {
+        const selected = state.selectedTemplate === key;
+        html += `<div class="glass hoverable" onclick="selectTemplate('${key}')" 
+          style="padding:18px 20px;cursor:pointer;
+          ${selected ? `border-color:${tmpl.color}44;background:${tmpl.color}0a;box-shadow:0 4px 20px ${tmpl.color}22` : ''}">
+          ${selected ? `<div style="position:absolute;top:0;left:0;right:0;height:2px;background:${tmpl.color};border-radius:16px 16px 0 0"></div>` : ''}
+          <div style="display:flex;align-items:flex-start;gap:14px">
+            <div style="width:48px;height:48px;border-radius:14px;background:${selected?tmpl.color+'15':'rgba(255,255,255,0.03)'};border:1px solid ${selected?tmpl.color+'30':'rgba(255,255,255,0.04)'};display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;transition:all 0.3s">
+              ${tmpl.icon}
+            </div>
+            <div style="flex:1">
+              <div style="font-size:15px;font-weight:700;color:${selected?tmpl.color:'#ccc'};transition:color 0.3s">${tmpl.name}</div>
+              <div style="font-size:11px;color:var(--text-muted);margin-top:3px;line-height:1.4">${tmpl.desc}</div>
+              ${tmpl.supplements.length > 0 ? `<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:8px">
+                ${tmpl.supplements.map(s => `<span style="font-size:8px;padding:2px 7px;border-radius:8px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);color:var(--text-dim);font-family:'IBM Plex Mono',monospace">${s.name}</span>`).join('')}
+              </div>` : `<div style="font-size:9px;color:var(--text-dim);margin-top:8px;font-family:'IBM Plex Mono',monospace">Empty stack — add your own</div>`}
+            </div>
+            <div style="width:20px;height:20px;border-radius:50%;border:2px solid ${selected?tmpl.color:'rgba(255,255,255,0.1)'};display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.3s;margin-top:2px">
+              ${selected?`<div style="width:10px;height:10px;border-radius:50%;background:${tmpl.color}"></div>`:''}
+            </div>
+          </div>
+        </div>`;
+      });
+
+      html += `</div>
+          <div style="max-width:400px;margin:24px auto 0">
+            <button onclick="completeOnboarding()" 
+              style="width:100%;padding:16px;border-radius:14px;border:none;font-size:14px;font-weight:700;cursor:${state.selectedTemplate?'pointer':'default'};
+              background:${state.selectedTemplate?'linear-gradient(135deg,var(--red),#bf3050)':'rgba(255,255,255,0.03)'};
+              color:${state.selectedTemplate?'#fff':'rgba(255,255,255,0.15)'};
+              box-shadow:${state.selectedTemplate?'0 4px 20px var(--red-glow)':'none'};
+              transition:all 0.3s">Launch Protocol</button>
+            <button onclick="state.onboardStep='name';render()" 
+              style="width:100%;padding:12px;border-radius:14px;border:none;background:transparent;color:var(--text-muted);font-size:12px;cursor:pointer;margin-top:8px">← Back</button>
+          </div>
+        </div>
+      </div>`;
+    }
+
+    app.innerHTML = html;
+    // Auto-focus name input
+    if (state.onboardStep === "name") {
+      const inp = document.getElementById('onboardNameInput');
+      if (inp) setTimeout(() => inp.focus(), 100);
+    }
+    return;
+  }
+
+  // ═══════════ MAIN APP (onboarded) ══════════
   const td = todayStr();
   const pct = pctToday();
   const taken = takenToday();
@@ -398,7 +611,7 @@ function render() {
           <div style="width:8px;height:8px;border-radius:50%;background:var(--red);box-shadow:0 0 12px var(--red),0 0 24px var(--red-glow);animation:pulse 2s infinite"></div>
           <h1 style="font-size:26px;font-weight:900;letter-spacing:-1px;background:linear-gradient(135deg,var(--red) 0%,var(--purple) 40%,var(--teal) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent">PROTOCOL</h1>
         </div>
-        <p class="label" style="margin:2px 0 0 18px;letter-spacing:3px">BIOHACKING COMMAND CENTER</p>
+        <p class="label" style="margin:2px 0 0 18px;letter-spacing:3px">${state.profile?.name ? escapeHtml(state.profile.name.toUpperCase()) + ' · ' : ''}COMMAND CENTER</p>
       </div>
       <div style="text-align:right">
         <div id="live-clock" class="mono" style="font-size:22px;font-weight:300;color:rgba(255,255,255,0.6);letter-spacing:2px">${timeStr}</div>
@@ -511,27 +724,42 @@ function render() {
       const c = CAT[s.category]||CAT.Essential;
       const taken = isTaken(s.id);
       const streak = getStreak(s.id);
+      const compound = getCompoundInfo(s.name);
+      const icon = getCompoundIcon(s.name, taken ? c.accent : 'rgba(255,255,255,0.25)');
       html+=`<div class="fade-in d${Math.min(i+1,6)}">
         <div class="glass hoverable" style="padding:16px 18px;opacity:${s.active?1:0.35};${taken?`border-color:${c.accent}33;background:${c.accent}08`:''}">
           ${taken?`<div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,${c.accent},${c.accent}88);border-radius:16px 16px 0 0"></div>`:''}
-          <div style="display:flex;justify-content:space-between;align-items:flex-start">
+          <div style="display:flex;align-items:flex-start;gap:14px">
+            <!-- Molecular Icon -->
+            <div style="flex-shrink:0;width:56px;height:56px;border-radius:12px;background:${taken?c.accent+'0a':'rgba(255,255,255,0.02)'};border:1px solid ${taken?c.accent+'22':'rgba(255,255,255,0.04)'};display:flex;align-items:center;justify-content:center;transition:all 0.3s">
+              ${icon}
+            </div>
+            <!-- Info -->
             <div style="flex:1;min-width:0">
               <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
                 <span style="font-size:15px;font-weight:700;color:${taken?c.accent:'#ccc'};transition:color 0.3s">${s.name}</span>
                 ${streak>1?`<span style="font-size:9px;background:${c.accent}15;color:${c.accent};padding:2px 8px;border-radius:10px;font-family:'IBM Plex Mono',monospace;font-weight:600;border:1px solid ${c.accent}22">${streak}d 🔥</span>`:''}
               </div>
-              <div style="font-size:11px;color:var(--text-dim);margin-top:5px;font-family:'IBM Plex Mono',monospace;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+              <!-- Formula + MW row -->
+              ${compound.formula!=='—'?`<div style="display:flex;gap:10px;margin-top:4px;align-items:center">
+                <span class="mono" style="font-size:9px;color:${taken?c.accent+'99':'rgba(255,255,255,0.2)'};letter-spacing:0.5px">${compound.formula}</span>
+                <span class="mono" style="font-size:8px;color:rgba(255,255,255,0.12)">${compound.mw}</span>
+              </div>`:''}
+              <div style="font-size:11px;color:var(--text-dim);margin-top:4px;font-family:'IBM Plex Mono',monospace;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
                 <span class="sup-tag">${s.dose}</span>
                 <span>${s.timing}</span>
                 ${s.fasted?`<span style="color:rgba(50,215,75,0.5);font-size:9px">● fasting-safe</span>`:''}
               </div>
+              <!-- Mechanism tags -->
+              ${compound.mechanism.length?`<div style="display:flex;gap:4px;margin-top:6px;flex-wrap:wrap">${compound.mechanism.map(m=>`<span style="font-size:8px;padding:2px 7px;border-radius:8px;background:${taken?c.accent+'12':'rgba(255,255,255,0.03)'};border:1px solid ${taken?c.accent+'20':'rgba(255,255,255,0.04)'};color:${taken?c.accent+'bb':'rgba(255,255,255,0.2)'};font-family:'IBM Plex Mono',monospace;letter-spacing:0.5px">${m}</span>`).join('')}</div>`:''}
               ${s.notes?`<div style="font-size:10px;color:var(--text-muted);margin-top:4px">${s.notes}</div>`:''}
               ${s.remaining>0&&s.remaining<=10?`<div style="font-size:9px;color:var(--red);margin-top:4px;font-family:'IBM Plex Mono',monospace">⚠ ${s.remaining} servings left</div>`:''}
             </div>
-            <div style="display:flex;gap:6px;align-items:center;margin-left:12px;flex-shrink:0">
-              <button onclick="startEdit('${s.id}')" style="background:none;border:none;color:rgba(255,255,255,0.15);cursor:pointer;font-size:14px;padding:4px">✎</button>
+            <!-- Actions -->
+            <div style="display:flex;flex-direction:column;gap:6px;align-items:center;flex-shrink:0">
               <div class="check-circle ${taken?'taken':''}" onclick="${s.active?`toggleTaken('${s.id}')`:''}"
                 style="${taken?`border-color:${c.accent};background:${c.accent}22;color:${c.accent};box-shadow:0 0 16px ${c.accent}33,inset 0 0 8px ${c.accent}11`:''}">${taken?'✓':''}</div>
+              <button onclick="startEdit('${s.id}')" style="background:none;border:none;color:rgba(255,255,255,0.12);cursor:pointer;font-size:12px;padding:2px">✎</button>
             </div>
           </div>
         </div>
@@ -555,8 +783,12 @@ function render() {
           </div>`;
       w.items.forEach(s=>{
         const t = isTaken(s.id);
-        html+=`<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-top:1px solid rgba(255,255,255,0.03)">
-          <div>
+        const miniIcon = getCompoundIcon(s.name, t ? w.color : 'rgba(255,255,255,0.2)');
+        html+=`<div style="display:flex;align-items:center;padding:8px 0;border-top:1px solid rgba(255,255,255,0.03);gap:10px">
+          <div style="width:32px;height:32px;flex-shrink:0;border-radius:8px;background:${t?w.color+'0a':'rgba(255,255,255,0.02)'};border:1px solid ${t?w.color+'18':'rgba(255,255,255,0.03)'};display:flex;align-items:center;justify-content:center;overflow:hidden">
+            <div style="transform:scale(0.57);transform-origin:center">${miniIcon}</div>
+          </div>
+          <div style="flex:1">
             <span style="font-size:13px;font-weight:600;color:${t?w.color:'rgba(255,255,255,0.6)'}">${s.name}</span>
             <span class="mono" style="font-size:10px;color:var(--text-muted);margin-left:8px">${s.dose}</span>
           </div>
@@ -761,6 +993,53 @@ function render() {
 function escapeHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/\n/g,'<br>'); }
 function escapeAttr(s) { return String(s||'').replace(/"/g,'&quot;'); }
 
+// ─── Onboarding actions ───────────────────────────────
+window.goToTemplates = function() {
+  if (!state.onboardName.trim()) return;
+  state.onboardStep = "template";
+  render();
+};
+window.selectTemplate = function(key) {
+  state.selectedTemplate = key;
+  render();
+};
+window.completeOnboarding = function() {
+  if (!state.selectedTemplate) return;
+  const tmpl = TEMPLATES[state.selectedTemplate];
+  const profile = { name: state.onboardName.trim(), createdAt: new Date().toISOString(), template: state.selectedTemplate };
+  
+  // Set up user data
+  state.profile = profile;
+  state.onboarded = true;
+  state.supplements = tmpl.supplements.map(s => ({...s, id: Date.now().toString() + Math.random().toString(36).slice(2,6)}));
+  state.log = {};
+  state.chat = [];
+  state.bio = {};
+  
+  // Persist
+  saveJSON("p-profile", profile);
+  persist();
+  render();
+};
+window.resetProfile = function() {
+  if (!confirm("This will erase all your data and show the setup screen. Continue?")) return;
+  localStorage.removeItem("p-profile");
+  localStorage.removeItem("p-supps");
+  localStorage.removeItem("p-log");
+  localStorage.removeItem("p-chat");
+  localStorage.removeItem("p-bio");
+  state.onboarded = false;
+  state.profile = null;
+  state.onboardStep = "name";
+  state.onboardName = "";
+  state.selectedTemplate = null;
+  state.supplements = [];
+  state.log = {};
+  state.chat = [];
+  state.bio = {};
+  render();
+};
+
 // ─── Global actions ────────────────────────────────────
 window.nav = function(v) {
   state.view = v;
@@ -831,7 +1110,8 @@ window.sendChat = async function() {
     `${d}: Sleep:${b.sleep} Energy:${b.energy} Mood:${b.mood} Focus:${b.focus} Gym:${b.performance}`
   ).join('\n');
 
-  const sys = `You are Claude, Nash's elite biohacking & supplement advisor in his PROTOCOL dashboard. Full context below.
+  const userName = state.profile?.name || 'the user';
+  const sys = `You are Claude, ${userName}'s elite biohacking & supplement advisor in their PROTOCOL dashboard. Full context below.
 
 ACTIVE STACK:
 ${stackCtx}
@@ -844,7 +1124,7 @@ ${bioCtx||'No data'}
 
 Today: ${td} | ${takenToday()}/${totalActive()} (${pctToday()}%) | Monthly: $${activeSupps().reduce((s,x)=>s+(x.cost||0)*30,0).toFixed(2)}
 
-Be direct, evidence-based. Nash is advanced — skip basic disclaimers. Reference his specific compounds. Flag interactions, timing optimizations, cycling needs, cost efficiencies. Concise but substantive.`;
+Be direct, evidence-based, and knowledgeable. Reference their specific compounds by name. Flag interactions, timing optimizations, cycling needs, and cost efficiencies. Concise but substantive.`;
 
   const history = state.chat.slice(-12).map(m=>({role:m.role,content:m.content}));
 
