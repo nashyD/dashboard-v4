@@ -13,380 +13,744 @@
 <title>PROTOCOL</title>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;500;600;700;800;900&family=IBM+Plex+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg: #08080c;
-    --surface: rgba(20, 20, 28, 0.4);
-    --surface-border: rgba(255,255,255,0.08);
-    --surface-hover: rgba(255,255,255,0.05);
-    --text: #f0f0f4;
-    --text-dim: rgba(255,255,255,0.5);
-    --text-muted: rgba(255,255,255,0.3);
-    --text-ghost: rgba(255,255,255,0.1);
-    --red: #ff2d55;
-    --purple: #bf5af2;
-    --teal: #30d5c8;
-    --green: #32d74b;
-    --yellow: #ffd60a;
-    --blue: #6e6eff;
-    --red-glow: rgba(255,45,85,0.4);
-    --purple-glow: rgba(191,90,242,0.4);
-    --teal-glow: rgba(48,213,200,0.4);
-    --safe-top: env(safe-area-inset-top, 0px);
-    --safe-bottom: env(safe-area-inset-bottom, 0px);
-  }
-  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-  html, body { 
-    background: var(--bg); color: var(--text); font-family: 'Outfit', sans-serif;
-    min-height: 100vh; overflow-x: hidden; overscroll-behavior: none;
-  }
-  body { padding-top: var(--safe-top); padding-bottom: var(--safe-bottom); }
-  
-  ::-webkit-scrollbar { width: 4px; }
-  ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
-  
-  @keyframes fadeUp { from { opacity:0; transform:translateY(12px) scale(0.98) } to { opacity:1; transform:translateY(0) scale(1) } }
-  @keyframes pulse { 0%,100%{opacity:0.4; transform:scale(0.95)} 50%{opacity:1; transform:scale(1.05)} }
-  @keyframes spin { to{transform:rotate(360deg)} }
-  @keyframes dotPulse { 0%,80%,100%{transform:scale(0.6);opacity:0.3} 40%{transform:scale(1);opacity:1} }
-  
-  .fade-in { animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both; }
-  .d1{animation-delay:0.05s} .d2{animation-delay:0.1s} .d3{animation-delay:0.15s}
-  .d4{animation-delay:0.2s} .d5{animation-delay:0.25s} .d6{animation-delay:0.3s}
-  
-  input:focus, textarea:focus { outline: none; border-color: var(--red) !important; box-shadow: 0 0 12px var(--red-glow); }
-  input::placeholder { color: rgba(255,255,255,0.2); }
-  input[type=range] { -webkit-appearance:none; width:100%; height:4px; border-radius:2px; background:rgba(255,255,255,0.1); cursor:pointer; }
-  input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:20px; height:20px; border-radius:50%; border:2px solid #fff; cursor:pointer; box-shadow: 0 0 10px rgba(0,0,0,0.5); }
-  
-  #particles { position:fixed; inset:0; width:100%; height:100%; pointer-events:none; z-index:0; }
-  
-  .glass {
-    background: var(--surface);
-    backdrop-filter: blur(24px) saturate(1.5);
-    -webkit-backdrop-filter: blur(24px) saturate(1.5);
-    border: 1px solid var(--surface-border);
-    border-radius: 18px;
-    padding: 22px;
-    position: relative;
-    overflow: hidden;
-    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-    box-shadow: 0 8px 32px rgba(0,0,0,0.2);
-  }
-  .glass::before {
-    content:''; position:absolute; top:0; left:0; right:0; height:1px;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
-  }
-  .glass.hoverable:hover { background: var(--surface-hover); border-color: rgba(255,255,255,0.15); transform: translateY(-2px); }
-  .glass.hoverable:active { transform: scale(0.98); }
-  
-  .mono { font-family: 'IBM Plex Mono', monospace; }
-  .label { font-size:10px; letter-spacing:2.5px; color:var(--text-muted); text-transform:uppercase; font-weight:600; }
-  .label-sm { font-size:9px; letter-spacing:1.5px; color:var(--text-muted); text-transform:uppercase; font-weight:500; }
-  
-  .nav { display:flex; gap:4px; padding:4px; background:rgba(10,10,14,0.6); backdrop-filter:blur(20px); border-radius:14px; border:1px solid rgba(255,255,255,0.06); }
-  .nav-btn {
-    flex:1; padding:10px 4px; background:transparent; border:none; border-radius:10px;
-    color:rgba(255,255,255,0.3); font-size:10px; font-weight:600; cursor:pointer;
-    font-family:'IBM Plex Mono',monospace; transition:all 0.3s ease;
-    display:flex; flex-direction:column; align-items:center; gap:4px; text-transform: uppercase;
-  }
-  .nav-btn:hover { color: rgba(255,255,255,0.6); background: rgba(255,255,255,0.03); }
-  .nav-btn.active { background:rgba(255,45,85,0.15); color:var(--red); box-shadow: inset 0 0 12px rgba(255,45,85,0.1); }
-  .nav-btn .icon { font-size:16px; }
-  
-  .check-circle {
-    width:44px; height:44px; border-radius:50%; cursor:pointer; border:2px solid rgba(255,255,255,0.1);
-    background:rgba(0,0,0,0.2); color:transparent; font-size:20px;
-    display:flex; align-items:center; justify-content:center; transition:all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-    flex-shrink:0;
-  }
-  .check-circle:hover { border-color: rgba(255,255,255,0.3); transform: scale(1.05); }
-  .check-circle.taken { color:inherit; transform: scale(1); }
-  
-  .input {
-    width:100%; padding:14px 16px; background:rgba(0,0,0,0.3);
-    border:1px solid var(--surface-border); border-radius:12px;
-    color:var(--text); font-size:15px; font-family:'Outfit',sans-serif; transition:all 0.3s;
-  }
-  
-  .btn-primary {
-    padding:16px; border-radius:14px; border:none; font-size:14px; font-weight:700; cursor:pointer;
-    background:linear-gradient(135deg, var(--red), #d62246); color:#fff;
-    box-shadow:0 8px 24px var(--red-glow); transition: all 0.3s ease; text-transform: uppercase; letter-spacing: 1px;
-  }
-  .btn-primary:hover { transform: translateY(-2px); box-shadow:0 12px 32px var(--red-glow); filter: brightness(1.1); }
-  .btn-primary:active { transform: translateY(0); }
-  
-  .pill {
-    padding:8px 16px; white-space:nowrap; border-radius:24px; font-size:11px; font-weight:600;
-    cursor:pointer; font-family:'IBM Plex Mono',monospace; letter-spacing:0.5px;
-    transition:all 0.3s; background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.08);
-    color:rgba(255,255,255,0.4); text-transform: uppercase;
-  }
-  .pill:hover { background:rgba(255,255,255,0.08); color: #fff; }
-  .pill.active { background:rgba(255,255,255,0.1); border-color:rgba(255,255,255,0.25); color:#fff; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
-
-  .chat-msg { max-width:85%; padding:14px 18px; white-space:pre-wrap; font-size:14px; line-height:1.6; animation: fadeUp 0.4s ease both; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-  .chat-user { border-radius:20px 20px 4px 20px; background:linear-gradient(135deg,var(--red),#d62246); color:#fff; box-shadow:0 8px 24px var(--red-glow); margin-left:auto; }
-  .chat-ai { border-radius:20px 20px 20px 4px; background:rgba(255,255,255,0.05); border:1px solid var(--surface-border); color:rgba(255,255,255,0.85); backdrop-filter: blur(10px); }
-
-  .overlay { position:fixed; inset:0; z-index:100; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,0.8); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); animation: fadeUp 0.3s ease both; }
-  
-  .spark-area { opacity: 0.2; }
-  .sup-tag { background:rgba(255,255,255,0.06); padding:4px 10px; border-radius:8px; font-family:'IBM Plex Mono',monospace; font-size:10px; text-transform: uppercase; font-weight: 600;}
+:root {
+  --bg: #08080c;
+  --surface: rgba(255,255,255,0.025);
+  --surface-border: rgba(255,255,255,0.07);
+  --text: #e8e8ec;
+  --text-dim: rgba(255,255,255,0.4);
+  --text-muted: rgba(255,255,255,0.2);
+  --text-ghost: rgba(255,255,255,0.08);
+  --red: #ff2d55; --purple: #bf5af2; --teal: #30d5c8;
+  --green: #32d74b; --yellow: #ffd60a; --blue: #6e6eff;
+  --red-glow: rgba(255,45,85,0.25); --purple-glow: rgba(191,90,242,0.25); --teal-glow: rgba(48,213,200,0.25);
+  --safe-top: env(safe-area-inset-top,0px); --safe-bottom: env(safe-area-inset-bottom,0px);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;min-height:100vh;overflow-x:hidden;overscroll-behavior:none;}
+body{padding-top:var(--safe-top);padding-bottom:var(--safe-bottom);}
+::-webkit-scrollbar{width:3px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.06);border-radius:4px}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes pulse{0%,100%{opacity:.4;transform:scale(1)}50%{opacity:1;transform:scale(1.15)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes dotPulse{0%,80%,100%{transform:scale(.6);opacity:.3}40%{transform:scale(1);opacity:1}}
+@keyframes blink{0%,49%{opacity:1}50%,100%{opacity:0}}
+@keyframes toastUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fabGlow{0%,100%{box-shadow:0 4px 20px var(--red-glow)}50%{box-shadow:0 4px 32px rgba(255,45,85,.45),0 0 0 8px rgba(255,45,85,.06)}}
+.fade-in{animation:fadeUp .5s cubic-bezier(.4,0,.2,1) both}
+.d1{animation-delay:.05s}.d2{animation-delay:.1s}.d3{animation-delay:.15s}.d4{animation-delay:.2s}.d5{animation-delay:.25s}.d6{animation-delay:.3s}
+input:focus,textarea:focus{outline:none;border-color:rgba(255,45,85,.35)!important}
+input::placeholder,textarea::placeholder{color:rgba(255,255,255,.15)}
+input[type=range]{-webkit-appearance:none;width:100%;height:4px;border-radius:2px;background:rgba(255,255,255,.06);cursor:pointer}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;border:none;cursor:pointer}
+#particles{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:0}
+.glass{background:var(--surface);backdrop-filter:blur(24px) saturate(1.3);-webkit-backdrop-filter:blur(24px) saturate(1.3);border:1px solid var(--surface-border);border-radius:16px;padding:20px;position:relative;overflow:hidden;transition:all .35s cubic-bezier(.4,0,.2,1)}
+.glass::before{content:'';position:absolute;top:0;left:10%;right:10%;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.1),transparent)}
+.glass.hoverable:active{transform:scale(.985)}
+.mono{font-family:'IBM Plex Mono',monospace}
+.label{font-size:9px;letter-spacing:2px;color:var(--text-muted);text-transform:uppercase;font-family:'IBM Plex Mono',monospace}
+.label-sm{font-size:8px;letter-spacing:1.5px;color:var(--text-muted);text-transform:uppercase;font-family:'IBM Plex Mono',monospace}
+.nav{display:flex;gap:3px;padding:3px;background:rgba(255,255,255,.025);border-radius:14px;border:1px solid rgba(255,255,255,.05);backdrop-filter:blur(20px)}
+.nav-btn{flex:1;padding:8px 4px;background:transparent;border:none;border-radius:11px;color:rgba(255,255,255,.25);font-size:10px;font-weight:500;cursor:pointer;font-family:'IBM Plex Mono',monospace;transition:all .25s;display:flex;flex-direction:column;align-items:center;gap:2px}
+.nav-btn.active{background:rgba(255,45,85,.12);color:var(--red);font-weight:700;border:1px solid rgba(255,45,85,.15)}
+.nav-btn .icon{font-size:15px}
+.fab{position:fixed;bottom:calc(80px + var(--safe-bottom));right:20px;z-index:100;width:52px;height:52px;border-radius:16px;border:none;cursor:pointer;background:linear-gradient(135deg,var(--red),#bf3050);color:#fff;font-size:26px;font-weight:300;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px var(--red-glow);transition:all .3s;animation:fabGlow 3s ease-in-out infinite}
+.fab:active{transform:scale(.92)}
+.sub-tabs{display:flex;gap:4px;padding:4px;background:rgba(255,255,255,.02);border-radius:10px;border:1px solid rgba(255,255,255,.04);margin-bottom:14px}
+.sub-tab{flex:1;padding:7px 10px;background:transparent;border:none;border-radius:7px;color:rgba(255,255,255,.3);font-size:10px;font-weight:600;cursor:pointer;font-family:'IBM Plex Mono',monospace;letter-spacing:.5px;transition:all .2s}
+.sub-tab.active{background:rgba(255,255,255,.06);color:rgba(255,255,255,.85);border:1px solid rgba(255,255,255,.08)}
+.pill{padding:6px 14px;white-space:nowrap;border-radius:20px;font-size:10px;font-weight:600;cursor:pointer;font-family:'IBM Plex Mono',monospace;letter-spacing:.5px;transition:all .3s;background:transparent;border:1px solid rgba(255,255,255,.05);color:rgba(255,255,255,.25)}
+.pill.active{background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.15);color:#fff}
+.check-circle{width:40px;height:40px;border-radius:50%;cursor:pointer;border:2px solid rgba(255,255,255,.08);background:rgba(255,255,255,.02);color:transparent;font-size:18px;display:flex;align-items:center;justify-content:center;transition:all .3s cubic-bezier(.4,0,.2,1);flex-shrink:0}
+.check-circle.taken{color:inherit}
+.input{width:100%;padding:11px 14px;background:rgba(255,255,255,.03);border:1px solid var(--surface-border);border-radius:10px;color:var(--text);font-size:13px;font-family:'Outfit',sans-serif;transition:border-color .3s}
+textarea.input{resize:none;min-height:80px;line-height:1.6}
+.btn-primary{padding:14px;border-radius:12px;border:none;font-size:13px;font-weight:700;cursor:pointer;background:linear-gradient(135deg,var(--red),#bf3050);color:#fff;box-shadow:0 4px 16px var(--red-glow);transition:all .2s}
+.btn-primary:active{transform:scale(.97)}
+.btn-ghost{padding:14px 20px;border-radius:12px;border:1px solid var(--surface-border);background:transparent;color:var(--text-dim);font-size:13px;cursor:pointer;transition:all .2s}
+.btn-danger{padding:14px 24px;border-radius:12px;border:1px solid rgba(255,45,85,.2);background:rgba(255,45,85,.08);color:var(--red);font-size:13px;font-weight:600;cursor:pointer;transition:all .2s}
+.chat-msg{max-width:88%;padding:12px 16px;font-size:13px;line-height:1.65;animation:fadeUp .25s ease both}
+.chat-user{border-radius:16px 16px 4px 16px;background:linear-gradient(135deg,var(--red),#bf3050);color:#fff;box-shadow:0 4px 16px var(--red-glow);margin-left:auto}
+.chat-ai{border-radius:16px 16px 16px 4px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.8)}
+.stream-cursor{animation:blink .8s step-end infinite;color:var(--red);font-weight:700}
+.toggle{width:40px;height:22px;border-radius:11px;cursor:pointer;position:relative;border:none;transition:background .3s}
+.thumb{width:16px;height:16px;border-radius:50%;background:#fff;position:absolute;top:3px;transition:left .3s}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:200;display:flex;align-items:flex-end;justify-content:center;backdrop-filter:blur(8px);animation:fadeIn .2s ease;padding-bottom:var(--safe-bottom)}
+.sheet{width:100%;max-width:480px;max-height:92vh;overflow-y:auto;background:#0d0d12;border-radius:24px 24px 0 0;padding:28px 24px 32px;border:1px solid rgba(255,255,255,.08);border-bottom:none;animation:fadeUp .3s cubic-bezier(.4,0,.2,1)}
+.sheet-handle{width:36px;height:4px;border-radius:2px;background:rgba(255,255,255,.12);margin:0 auto 24px}
+#toasts{position:fixed;bottom:96px;left:50%;transform:translateX(-50%);z-index:500;display:flex;flex-direction:column-reverse;gap:8px;pointer-events:none;align-items:center;width:max-content;max-width:calc(100vw - 40px)}
+.toast{padding:10px 20px;border-radius:12px;font-size:11px;font-weight:600;font-family:'IBM Plex Mono',monospace;letter-spacing:.5px;pointer-events:auto;cursor:pointer;backdrop-filter:blur(20px);border:1px solid;white-space:nowrap;transition:opacity .3s,transform .3s;animation:toastUp .3s ease}
+.toast-success{background:rgba(50,215,75,.15);border-color:rgba(50,215,75,.3);color:#32d74b}
+.toast-error{background:rgba(255,45,85,.15);border-color:rgba(255,45,85,.3);color:#ff2d55}
+.toast-info{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.15);color:rgba(255,255,255,.8)}
+.toast-warn{background:rgba(255,214,10,.15);border-color:rgba(255,214,10,.3);color:#ffd60a}
+#pwa-banner{position:fixed;top:calc(var(--safe-top) + 8px);left:12px;right:12px;z-index:300;background:rgba(13,13,18,.95);border:1px solid rgba(255,45,85,.2);border-radius:14px;padding:14px 16px;display:none;align-items:center;gap:12px;backdrop-filter:blur(20px);animation:fadeUp .3s ease}
+.sup-tag{background:rgba(255,255,255,.04);padding:2px 8px;border-radius:6px;font-family:'IBM Plex Mono',monospace;font-size:11px}
+.timeline-dot{position:absolute;left:-22px;top:8px;width:10px;height:10px;border-radius:50%;border:2px solid var(--bg)}
+.spark-area{opacity:.12}
+.journal-card{padding:12px 14px;background:rgba(255,255,255,.02);border-radius:10px;border-left:2px solid rgba(191,90,242,.3);margin-bottom:8px}
+.settings-row{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+.settings-row:last-child{border-bottom:none}
+.insights-body h2{font-size:11px;font-weight:700;color:var(--red);margin:14px 0 5px;letter-spacing:1.5px;text-transform:uppercase;border-bottom:1px solid rgba(255,45,85,.12);padding-bottom:4px}
+.insights-body p{font-size:13px;color:rgba(255,255,255,.65);line-height:1.7;margin:5px 0}
+.insights-body strong{color:rgba(255,255,255,.92)}
+.insights-body code{background:rgba(255,255,255,.07);padding:1px 6px;border-radius:4px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--teal)}
 </style>
 </head>
 <body>
-
 <canvas id="particles"></canvas>
 <div id="app" style="position:relative;z-index:10;min-height:100vh;"></div>
+<div id="toasts"></div>
+<button class="fab" id="global-fab" onclick="openAdd()" style="display:none">+</button>
+<div id="pwa-banner">
+  <div style="font-size:22px">⊕</div>
+  <div style="flex:1">
+    <div style="font-size:12px;font-weight:700;color:#fff">Install PROTOCOL</div>
+    <div style="font-size:10px;color:var(--text-muted);margin-top:2px">Add to home screen for the full experience</div>
+  </div>
+  <button onclick="installPWA()" style="background:rgba(255,45,85,.15);border:1px solid rgba(255,45,85,.3);border-radius:8px;color:var(--red);font-size:10px;font-weight:700;padding:6px 12px;cursor:pointer;font-family:'IBM Plex Mono',monospace">INSTALL</button>
+  <button onclick="document.getElementById('pwa-banner').style.display='none'" style="background:none;border:none;color:var(--text-muted);font-size:20px;cursor:pointer;line-height:1">×</button>
+</div>
 
 <script>
-// ══════════════════════════════════════════════════════════
-// PROTOCOL PWA — Advanced Refactor
-// ══════════════════════════════════════════════════════════
+// ── Service Worker ──────────────────────────────────────
+if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
 
-if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
-
-function triggerHaptic(type = 'light') {
-  if (!navigator.vibrate) return;
-  if (type === 'light') navigator.vibrate(40);
-  if (type === 'heavy') navigator.vibrate([40, 50, 40]);
-  if (type === 'success') navigator.vibrate([30, 40, 60]);
-}
-
-// Data & State Management
-const DEFAULTS = [
-  { id:"1", name:"Creatine Monohydrate", dose:"7g", timing:"Morning", category:"Performance", notes:"Daily, mixed with water.", active:true, cost:0.15, remaining:60, fasted:true },
-  { id:"5", name:"Omega-3 Fish Oil", dose:"2g", timing:"With meal", category:"Essential", notes:"High EPA/DHA.", active:true, cost:0.35, remaining:50, fasted:false },
-  { id:"6", name:"Vitamin D3 + K2", dose:"5000 IU", timing:"With meal", category:"Essential", notes:"Fat-soluble.", active:true, cost:0.25, remaining:80, fasted:false }
-];
-
-const CATEGORIES = ["All","Performance","Adaptogen","Nootropic","Antioxidant","Essential"];
-const TIMINGS = ["Morning","Afternoon","Evening","With meal","Pre-workout","Post-workout","As needed"];
-const CAT = {
-  Performance:{accent:"#ff2d55"}, Adaptogen:{accent:"#30d5c8"}, Nootropic:{accent:"#bf5af2"},
-  Antioxidant:{accent:"#ffd60a"}, Essential:{accent:"#32d74b"}
-};
-const BIOS = [
-  {key:"sleep",label:"Sleep",icon:"🌙",color:"#6e6eff"}, {key:"energy",label:"Energy",icon:"⚡",color:"#ffd60a"},
-  {key:"mood",label:"Mood",icon:"🧠",color:"#30d5c8"}, {key:"focus",label:"Focus",icon:"🎯",color:"#bf5af2"},
-  {key:"performance",label:"Gym",icon:"🏋️",color:"#ff2d55"}
-];
-
-function loadJSON(key, fallback) { try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; } catch { return fallback; } }
-function saveJSON(key, val) { try { localStorage.setItem(key, JSON.stringify(val)); } catch {} }
-
-let state = {
-  profile: loadJSON("p-profile", { name: "User" }),
-  supplements: loadJSON("p-supps", DEFAULTS),
-  log: loadJSON("p-log", {}),
-  chat: loadJSON("p-chat", []),
-  bio: loadJSON("p-bio", {}),
-  view: "command", filter: "All", chatInput: "", chatLoading: false, editId: null,
-  form: { name:"", dose:"", timing:"Morning", category:"Performance", notes:"", cost:"", remaining:"", fasted:true },
-  showBioModal: false, showSettings: false, bioEntry: { sleep:5, energy:5, mood:5, focus:5, performance:5 },
+// ── Templates ───────────────────────────────────────────
+const TEMPLATES = {
+  foundational:{name:"Foundational",desc:"The essential daily stack. Covers recovery, cognition, and longevity basics.",icon:"🧬",color:"#32d74b",supplements:[
+    {id:"t1",name:"Creatine Monohydrate",dose:"5g",timing:"Morning",category:"Performance",notes:"Daily. Most researched supplement in existence.",active:true,cost:.10,remaining:60,fasted:true},
+    {id:"t2",name:"Omega-3 Fish Oil",dose:"2g",timing:"With meal",category:"Essential",notes:"High EPA/DHA. Take with fat-containing meal.",active:true,cost:.35,remaining:50,fasted:false},
+    {id:"t3",name:"Vitamin D3 + K2",dose:"5000 IU / 100mcg",timing:"With meal",category:"Essential",notes:"Fat-soluble — always with food.",active:true,cost:.25,remaining:80,fasted:false},
+    {id:"t4",name:"Magnesium Glycinate",dose:"400mg",timing:"Evening",category:"Essential",notes:"Highly bioavailable. Supports sleep and recovery.",active:true,cost:.20,remaining:60,fasted:true},
+  ]},
+  nootropic:{name:"Nootropic Focus",desc:"Cognitive enhancement stack. Memory, focus, and neuroprotection.",icon:"🧠",color:"#bf5af2",supplements:[
+    {id:"t5",name:"Lion's Mane",dose:"1000mg",timing:"Morning",category:"Nootropic",notes:"Fruiting body extract. NGF support.",active:true,cost:.55,remaining:30,fasted:true},
+    {id:"t6",name:"L-Theanine",dose:"200mg",timing:"Morning",category:"Nootropic",notes:"Stack with caffeine for focused calm.",active:true,cost:.12,remaining:100,fasted:true},
+    {id:"t7",name:"Alpha-GPC",dose:"300mg",timing:"Morning",category:"Nootropic",notes:"Choline source. Acetylcholine precursor.",active:true,cost:.40,remaining:45,fasted:true},
+    {id:"t8",name:"Omega-3 Fish Oil",dose:"2g",timing:"With meal",category:"Essential",notes:"DHA critical for brain membrane fluidity.",active:true,cost:.35,remaining:50,fasted:false},
+    {id:"t9",name:"Creatine Monohydrate",dose:"5g",timing:"Morning",category:"Performance",notes:"Cognitive benefits alongside physical.",active:true,cost:.10,remaining:60,fasted:true},
+  ]},
+  athletic:{name:"Athletic Performance",desc:"Strength, endurance, and recovery. Built for serious training.",icon:"🏋️",color:"#ff2d55",supplements:[
+    {id:"t10",name:"Creatine Monohydrate",dose:"7g",timing:"Morning",category:"Performance",notes:"Higher dose for loading/saturation.",active:true,cost:.15,remaining:60,fasted:true},
+    {id:"t11",name:"Citrulline Malate",dose:"8g",timing:"Pre-workout",category:"Performance",notes:"Nitric oxide precursor. Endurance + pump.",active:true,cost:.30,remaining:40,fasted:true},
+    {id:"t12",name:"Beta-Alanine",dose:"3.2g",timing:"Pre-workout",category:"Performance",notes:"Carnosine buffer. Delays fatigue.",active:true,cost:.18,remaining:50,fasted:true},
+    {id:"t13",name:"KSM-66 Ashwagandha",dose:"600mg",timing:"Morning",category:"Adaptogen",notes:"Cortisol modulation. Recovery support.",active:true,cost:.45,remaining:45,fasted:true},
+    {id:"t14",name:"Omega-3 Fish Oil",dose:"2g",timing:"With meal",category:"Essential",notes:"Anti-inflammatory. Joint support.",active:true,cost:.35,remaining:50,fasted:false},
+    {id:"t15",name:"Vitamin D3 + K2",dose:"5000 IU / 100mcg",timing:"With meal",category:"Essential",notes:"Testosterone and bone support.",active:true,cost:.25,remaining:80,fasted:false},
+  ]},
+  longevity:{name:"Longevity",desc:"Anti-aging and healthspan optimization. Antioxidants and cellular support.",icon:"⏳",color:"#30d5c8",supplements:[
+    {id:"t16",name:"NAC",dose:"600mg",timing:"Morning",category:"Antioxidant",notes:"Glutathione precursor. Master antioxidant support.",active:true,cost:.20,remaining:90,fasted:true},
+    {id:"t17",name:"Omega-3 Fish Oil",dose:"2g",timing:"With meal",category:"Essential",notes:"Anti-inflammatory. Cardiovascular support.",active:true,cost:.35,remaining:50,fasted:false},
+    {id:"t18",name:"Vitamin D3 + K2",dose:"5000 IU / 100mcg",timing:"With meal",category:"Essential",notes:"Immune modulation and calcium routing.",active:true,cost:.25,remaining:80,fasted:false},
+    {id:"t19",name:"CoQ10",dose:"200mg",timing:"With meal",category:"Antioxidant",notes:"Mitochondrial electron transport. Heart health.",active:true,cost:.50,remaining:30,fasted:false},
+    {id:"t20",name:"Magnesium Glycinate",dose:"400mg",timing:"Evening",category:"Essential",notes:"300+ enzymatic reactions. Most people deficient.",active:true,cost:.20,remaining:60,fasted:true},
+  ]},
+  blank:{name:"Start Blank",desc:"Build your stack from scratch. Full control from day one.",icon:"✦",color:"#ffd60a",supplements:[]}
 };
 
-function persist() { saveJSON("p-supps", state.supplements); saveJSON("p-log", state.log); saveJSON("p-chat", state.chat); saveJSON("p-bio", state.bio); }
-function todayStr() { return new Date().toISOString().slice(0,10); }
-function isTaken(id) { return state.log[todayStr()]?.[id] || false; }
-function toggleTaken(id) {
-  triggerHaptic('success');
-  const d = todayStr();
-  if (!state.log[d]) state.log[d] = {};
-  state.log[d][id] = !state.log[d][id];
-  persist(); render();
+const DEFAULTS=[
+  {id:"1",name:"Creatine Monohydrate",dose:"7g",timing:"Morning",category:"Performance",notes:"Daily, mixed with water. Saturate muscle phosphocreatine.",active:true,cost:.15,remaining:60,fasted:true},
+  {id:"2",name:"KSM-66 Ashwagandha",dose:"600mg",timing:"Morning",category:"Adaptogen",notes:"Standardized withanolide. Cycle 8wk on / 2wk off.",active:true,cost:.45,remaining:45,fasted:true},
+  {id:"3",name:"Lion's Mane",dose:"1000mg",timing:"Morning",category:"Nootropic",notes:"Fruiting body. NGF support.",active:true,cost:.55,remaining:30,fasted:true},
+  {id:"4",name:"NAC",dose:"600mg",timing:"Morning",category:"Antioxidant",notes:"N-Acetyl Cysteine. Avoid near training window.",active:true,cost:.20,remaining:90,fasted:true},
+  {id:"5",name:"Omega-3 Fish Oil",dose:"2g",timing:"With meal",category:"Essential",notes:"High EPA/DHA. Take with fat-containing meal.",active:true,cost:.35,remaining:50,fasted:false},
+  {id:"6",name:"Vitamin D3 + K2",dose:"5000 IU / 100mcg",timing:"With meal",category:"Essential",notes:"Fat-soluble — always with food.",active:true,cost:.25,remaining:80,fasted:false},
+  {id:"7",name:"L-Theanine",dose:"200mg",timing:"As needed",category:"Nootropic",notes:"Stack with caffeine or use pre-sleep.",active:true,cost:.12,remaining:100,fasted:true},
+];
+
+const COMPOUND_DATA={
+  "Creatine Monohydrate":{formula:"C₄H₉N₃O₂",mw:"131.13 g/mol",mechanism:["ATP Resynthesis","Phosphocreatine"],icon:c=>`<svg viewBox="0 0 56 56" width="56" height="56"><circle cx="28" cy="16" r="4" fill="${c}" opacity=".9"/><circle cx="16" cy="36" r="4" fill="${c}" opacity=".7"/><circle cx="40" cy="36" r="4" fill="${c}" opacity=".7"/><circle cx="28" cy="46" r="3" fill="${c}" opacity=".5"/><line x1="28" y1="20" x2="16" y2="32" stroke="${c}" stroke-width="1.5" opacity=".4"/><line x1="28" y1="20" x2="40" y2="32" stroke="${c}" stroke-width="1.5" opacity=".4"/><line x1="16" y1="40" x2="28" y2="46" stroke="${c}" stroke-width="1.5" opacity=".4"/><line x1="40" y1="40" x2="28" y2="46" stroke="${c}" stroke-width="1.5" opacity=".4"/><circle cx="28" cy="16" r="8" fill="none" stroke="${c}" stroke-width=".5" opacity=".15"/></svg>`},
+  "KSM-66 Ashwagandha":{formula:"C₂₈H₃₈O₆",mw:"470.60 g/mol",mechanism:["Cortisol Modulation","GABAergic"],icon:c=>`<svg viewBox="0 0 56 56" width="56" height="56"><path d="M28 8 L28 20 M22 14 L28 20 L34 14" stroke="${c}" stroke-width="1.5" fill="none" opacity=".6"/><circle cx="28" cy="28" r="8" fill="none" stroke="${c}" stroke-width="1.5" opacity=".8"/><circle cx="28" cy="28" r="3" fill="${c}" opacity=".6"/><path d="M20 28 Q14 28 14 34 Q14 44 28 48 Q42 44 42 34 Q42 28 36 28" fill="none" stroke="${c}" stroke-width="1.2" opacity=".5"/></svg>`},
+  "Lion's Mane":{formula:"Hericenones",mw:"~390 g/mol",mechanism:["NGF Synthesis","Neuroplasticity"],icon:c=>`<svg viewBox="0 0 56 56" width="56" height="56"><ellipse cx="28" cy="24" rx="12" ry="10" fill="none" stroke="${c}" stroke-width="1.2" opacity=".6"/><path d="M20 30 Q16 38 18 46" stroke="${c}" stroke-width="1.2" fill="none" opacity=".5"/><path d="M24 32 Q22 40 24 48" stroke="${c}" stroke-width="1.2" fill="none" opacity=".5"/><path d="M28 34 Q28 42 28 50" stroke="${c}" stroke-width="1.2" fill="none" opacity=".5"/><path d="M32 32 Q34 40 32 48" stroke="${c}" stroke-width="1.2" fill="none" opacity=".5"/><path d="M36 30 Q40 38 38 46" stroke="${c}" stroke-width="1.2" fill="none" opacity=".5"/><circle cx="28" cy="20" r="3" fill="${c}" opacity=".3"/></svg>`},
+  "NAC":{formula:"C₅H₉NO₃S",mw:"163.19 g/mol",mechanism:["Glutathione Precursor","Mucolytic"],icon:c=>`<svg viewBox="0 0 56 56" width="56" height="56"><circle cx="20" cy="20" r="5" fill="none" stroke="${c}" stroke-width="1.5" opacity=".8"/><circle cx="36" cy="20" r="5" fill="none" stroke="${c}" stroke-width="1.5" opacity=".8"/><circle cx="28" cy="38" r="5" fill="none" stroke="${c}" stroke-width="1.5" opacity=".8"/><line x1="24" y1="23" x2="33" y2="23" stroke="${c}" stroke-width="1.2" opacity=".5"/><line x1="23" y1="25" x2="28" y2="33" stroke="${c}" stroke-width="1.2" opacity=".5"/><line x1="33" y1="25" x2="28" y2="33" stroke="${c}" stroke-width="1.2" opacity=".5"/><text x="28" y="42" text-anchor="middle" fill="${c}" font-size="7" font-family="IBM Plex Mono" opacity=".6">S</text></svg>`},
+  "Omega-3 Fish Oil":{formula:"C₂₀H₃₀O₂",mw:"302.45 g/mol",mechanism:["Anti-inflammatory","Membrane Fluidity"],icon:c=>`<svg viewBox="0 0 56 56" width="56" height="56"><ellipse cx="28" cy="28" rx="18" ry="10" fill="none" stroke="${c}" stroke-width="1.2" opacity=".4"/><path d="M10 28 Q16 20 22 28 Q28 36 34 28 Q40 20 46 28" stroke="${c}" stroke-width="1.8" fill="none" opacity=".7" stroke-linecap="round"/><circle cx="14" cy="28" r="2.5" fill="${c}" opacity=".5"/><circle cx="28" cy="28" r="2.5" fill="${c}" opacity=".5"/><circle cx="42" cy="28" r="2.5" fill="${c}" opacity=".5"/></svg>`},
+  "Vitamin D3 + K2":{formula:"C₂₇H₄₄O",mw:"384.64 g/mol",mechanism:["Calcium Routing","Immune Modulation"],icon:c=>`<svg viewBox="0 0 56 56" width="56" height="56"><circle cx="20" cy="28" r="10" fill="none" stroke="${c}" stroke-width="1.2" opacity=".5"/><circle cx="36" cy="28" r="10" fill="none" stroke="${c}" stroke-width="1.2" opacity=".5"/><circle cx="20" cy="28" r="4" fill="${c}" opacity=".3"/><circle cx="36" cy="28" r="4" fill="${c}" opacity=".3"/><text x="20" y="31" text-anchor="middle" fill="${c}" font-size="6" font-family="IBM Plex Mono" opacity=".7">D3</text><text x="36" y="31" text-anchor="middle" fill="${c}" font-size="6" font-family="IBM Plex Mono" opacity=".7">K2</text></svg>`},
+  "L-Theanine":{formula:"C₇H₁₄N₂O₃",mw:"174.20 g/mol",mechanism:["Alpha Waves","GABA Agonist"],icon:c=>`<svg viewBox="0 0 56 56" width="56" height="56"><path d="M12 40 Q20 10 28 28 Q36 46 44 16" stroke="${c}" stroke-width="2" fill="none" opacity=".6" stroke-linecap="round"/><circle cx="12" cy="40" r="3" fill="${c}" opacity=".5"/><circle cx="44" cy="16" r="3" fill="${c}" opacity=".5"/><circle cx="28" cy="28" r="3" fill="${c}" opacity=".4"/></svg>`},
+};
+
+function getCompoundIcon(name,color){const d=COMPOUND_DATA[name];if(d&&d.icon)return d.icon(color);return`<svg viewBox="0 0 56 56" width="56" height="56"><circle cx="28" cy="28" r="8" fill="none" stroke="${color}" stroke-width="1.5" opacity=".6"/><circle cx="28" cy="28" r="3" fill="${color}" opacity=".4"/><circle cx="28" cy="12" r="3" fill="${color}" opacity=".3"/><circle cx="42" cy="36" r="3" fill="${color}" opacity=".3"/><circle cx="14" cy="36" r="3" fill="${color}" opacity=".3"/><line x1="28" y1="20" x2="28" y2="15" stroke="${color}" stroke-width="1" opacity=".3"/><line x1="35" y1="32" x2="39" y2="34" stroke="${color}" stroke-width="1" opacity=".3"/><line x1="21" y1="32" x2="17" y2="34" stroke="${color}" stroke-width="1" opacity=".3"/></svg>`;}
+function getCompoundInfo(name){return COMPOUND_DATA[name]||{formula:"—",mw:"—",mechanism:[]};}
+
+const CATEGORIES=["All","Performance","Adaptogen","Nootropic","Antioxidant","Essential"];
+const TIMINGS=["Morning","Afternoon","Evening","With meal","Pre-workout","Post-workout","As needed"];
+const CAT={Performance:{accent:"#ff2d55",glow:"rgba(255,45,85,.3)"},Adaptogen:{accent:"#30d5c8",glow:"rgba(48,213,200,.3)"},Nootropic:{accent:"#bf5af2",glow:"rgba(191,90,242,.3)"},Antioxidant:{accent:"#ffd60a",glow:"rgba(255,214,10,.3)"},Essential:{accent:"#32d74b",glow:"rgba(50,215,75,.3)"}};
+const BIOS=[{key:"sleep",label:"Sleep",icon:"🌙",color:"#6e6eff"},{key:"energy",label:"Energy",icon:"⚡",color:"#ffd60a"},{key:"mood",label:"Mood",icon:"🧠",color:"#30d5c8"},{key:"focus",label:"Focus",icon:"🎯",color:"#bf5af2"},{key:"performance",label:"Gym",icon:"🏋️",color:"#ff2d55"}];
+const VIEWS=['command','stack','timing','bio','chat'];
+
+// ── Storage ─────────────────────────────────────────────
+function loadJSON(k,fb){try{const v=localStorage.getItem(k);return v?JSON.parse(v):fb;}catch{return fb;}}
+function saveJSON(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch{}}
+
+const existingProfile=loadJSON("p-profile",null);
+const isOnboarded=existingProfile!==null||loadJSON("p-supps",null)!==null;
+if(!existingProfile&&loadJSON("p-supps",null)!==null) saveJSON("p-profile",{name:"User",createdAt:new Date().toISOString()});
+
+// ── State ───────────────────────────────────────────────
+let state={
+  onboarded:isOnboarded,
+  profile:existingProfile||(isOnboarded?{name:"User"}:null),
+  onboardStep:"name",onboardName:"",selectedTemplate:null,
+  supplements:loadJSON("p-supps",DEFAULTS),
+  log:loadJSON("p-log",{}),
+  chat:loadJSON("p-chat",[]),
+  bio:loadJSON("p-bio",{}),
+  journal:loadJSON("p-journal",{}),
+  view:"command",subView:"chat",filter:"All",
+  chatInput:"",chatLoading:false,
+  insightsContent:loadJSON("p-insights",""),insightsLoading:false,
+  analyzeContent:"",analyzeLoading:false,
+  editId:null,
+  form:{name:"",dose:"",timing:"Morning",category:"Performance",notes:"",cost:"",remaining:"",fasted:true},
+  showBioModal:false,showSettings:false,showAdd:false,
+  bioEntry:{sleep:5,energy:5,mood:5,focus:5,performance:5},
+  journalInput:"",
+};
+
+function persist(){
+  saveJSON("p-supps",state.supplements);saveJSON("p-log",state.log);
+  saveJSON("p-chat",state.chat);saveJSON("p-bio",state.bio);
+  saveJSON("p-journal",state.journal);saveJSON("p-insights",state.insightsContent);
 }
-function activeSupps() { return state.supplements.filter(s=>s.active); }
 
-// Interactive Neural Background
-function initParticles() {
-  const c = document.getElementById('particles');
-  if (!c) return;
-  const ctx = c.getContext('2d');
-  let w, h;
-  let mouse = { x: -1000, y: -1000 };
-  
-  window.addEventListener('mousemove', e => { mouse.x = e.clientX; mouse.y = e.clientY; });
-  window.addEventListener('touchmove', e => { mouse.x = e.touches[0].clientX; mouse.y = e.touches[0].clientY; });
+// ── Date / Tracking ─────────────────────────────────────
+function todayStr(){return new Date().toISOString().slice(0,10);}
+function isTaken(id){return state.log[todayStr()]?.[id]||false;}
+function toggleTaken(id){const d=todayStr();if(!state.log[d])state.log[d]={};state.log[d][id]=!state.log[d][id];haptic(8);persist();render();}
+function getStreak(id){let s=0,d=new Date();if(!state.log[d.toISOString().slice(0,10)]?.[id])return 0;while(state.log[d.toISOString().slice(0,10)]?.[id]){s++;d.setDate(d.getDate()-1);}return s;}
+function activeSupps(){return state.supplements.filter(s=>s.active);}
+function takenToday(){return activeSupps().filter(s=>isTaken(s.id)).length;}
+function totalActive(){return activeSupps().length;}
+function pctToday(){const t=totalActive();return t>0?Math.round(takenToday()/t*100):0;}
+function getLast7(fn){const arr=[];for(let i=6;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);arr.push(fn(d.toISOString().slice(0,10)));}return arr;}
+function adherence7(){return getLast7(k=>{const e=state.log[k];if(!e)return 0;const t=totalActive();return t?Math.round(Object.values(e).filter(Boolean).length/t*100):0;});}
+function bioHistory(key){return getLast7(k=>state.bio[k]?.[key]||0);}
 
-  function resize() { w=c.width=window.innerWidth*2; h=c.height=window.innerHeight*2; ctx.scale(2,2); }
-  window.addEventListener('resize', resize);
-  resize();
-
-  const ps = Array.from({length:60},()=>({
-    x:Math.random()*w/2, y:Math.random()*h/2, vx:(Math.random()-0.5)*0.3, vy:(Math.random()-0.5)*0.3,
-    r:Math.random()*1.5+0.5, a:Math.random()*0.4+0.1, hue:Math.random()>0.5?340:170
-  }));
-
+// ── Particles ────────────────────────────────────────────
+function initParticles(){
+  const c=document.getElementById('particles');if(!c)return;
+  const ctx=c.getContext('2d');let w,h;
+  const mouse={x:-9999,y:-9999};
+  function resize(){w=c.width=window.innerWidth;h=c.height=window.innerHeight;}
+  resize();window.addEventListener('resize',resize);
+  document.addEventListener('mousemove',e=>{mouse.x=e.clientX;mouse.y=e.clientY;});
+  document.addEventListener('touchmove',e=>{mouse.x=e.touches[0].clientX;mouse.y=e.touches[0].clientY;},{passive:true});
+  const ps=Array.from({length:65},()=>({x:Math.random()*window.innerWidth,y:Math.random()*window.innerHeight,vx:(Math.random()-.5)*.3,vy:(Math.random()-.5)*.3,r:Math.random()*1.5+.4,a:Math.random()*.4+.08,hue:[340,170,270][Math.floor(Math.random()*3)]}));
   function draw(){
-    ctx.clearRect(0,0,w/2,h/2);
+    ctx.clearRect(0,0,w,h);
     ps.forEach(p=>{
-      // Mouse interaction
-      const dxM = mouse.x - p.x; const dyM = mouse.y - p.y; const distM = Math.sqrt(dxM*dxM + dyM*dyM);
-      if (distM < 100) { p.x -= dxM * 0.02; p.y -= dyM * 0.02; }
-
-      p.x+=p.vx; p.y+=p.vy;
-      if(p.x<0||p.x>w/2)p.vx*=-1; if(p.y<0||p.y>h/2)p.vy*=-1;
-      ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
-      ctx.fillStyle=`hsla(${p.hue},80%,65%,${p.a})`; ctx.fill();
+      const dx=p.x-mouse.x,dy=p.y-mouse.y,dist=Math.sqrt(dx*dx+dy*dy);
+      if(dist<130&&dist>1){const f=(130-dist)/130*.4;p.vx+=(dx/dist)*f;p.vy+=(dy/dist)*f;}
+      p.vx*=.988;p.vy*=.988;
+      const spd=Math.sqrt(p.vx*p.vx+p.vy*p.vy);
+      if(spd>1.3){p.vx=p.vx/spd*1.3;p.vy=p.vy/spd*1.3;}
+      p.x+=p.vx;p.y+=p.vy;
+      if(p.x<0||p.x>w)p.vx*=-1;if(p.y<0||p.y>h)p.vy*=-1;
+      ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fillStyle=`hsla(${p.hue},75%,65%,${p.a})`;ctx.fill();
     });
     for(let i=0;i<ps.length;i++)for(let j=i+1;j<ps.length;j++){
       const dx=ps[i].x-ps[j].x,dy=ps[i].y-ps[j].y,d=Math.sqrt(dx*dx+dy*dy);
-      if(d<100){
-        ctx.beginPath();ctx.moveTo(ps[i].x,ps[i].y);ctx.lineTo(ps[j].x,ps[j].y);
-        ctx.strokeStyle=`rgba(255,255,255,${0.05*(1-d/100)})`;ctx.lineWidth=0.5;ctx.stroke();
-      }
+      if(d<100){ctx.beginPath();ctx.moveTo(ps[i].x,ps[i].y);ctx.lineTo(ps[j].x,ps[j].y);ctx.strokeStyle=`rgba(255,255,255,${.04*(1-d/100)})`;ctx.lineWidth=.5;ctx.stroke();}
     }
     requestAnimationFrame(draw);
   }
   draw();
 }
 
-function render() {
-  const app = document.getElementById('app');
-  let html = '';
+// ── SVG Helpers ──────────────────────────────────────────
+function svgGauge(val,max,size,color,label,sub){
+  const pct=max>0?val/max:0,r=(size-14)/2,circ=2*Math.PI*r,off=circ*(1-pct);
+  return`<div style="text-align:center"><svg width="${size}" height="${size}" style="transform:rotate(-90deg)"><circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="rgba(255,255,255,.04)" stroke-width="6"/><circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="${color}" stroke-width="6" stroke-linecap="round" stroke-dasharray="${circ}" stroke-dashoffset="${off}" style="transition:stroke-dashoffset 1s cubic-bezier(.4,0,.2,1);filter:drop-shadow(0 0 6px ${color}88)"/></svg><div style="margin-top:${-size/2-14}px;height:${size/2+14}px;display:flex;flex-direction:column;justify-content:center;align-items:center"><div style="font-size:${size/4}px;font-weight:800;color:#fff">${val}</div>${sub?`<div class="label-sm" style="margin-top:2px">${sub}</div>`:''}</div>${label?`<div class="label-sm" style="margin-top:4px">${label}</div>`:''}</div>`;
+}
+function svgSparkline(data,color,w=80,h=24){
+  if(!data||data.length<2)return'';
+  const max=Math.max(...data,1),min=Math.min(...data,0),range=max-min||1;
+  const pts=data.map((v,i)=>`${(i/(data.length-1))*w},${h-((v-min)/range)*h}`).join(' ');
+  const lx=(data.length-1)/(data.length-1)*w,ly=h-((data[data.length-1]-min)/range)*h;
+  return`<svg width="${w}" height="${h}" style="overflow:visible"><polygon points="${pts} ${w},${h} 0,${h}" fill="${color}" class="spark-area"/><polyline points="${pts}" fill="none" stroke="${color}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="filter:drop-shadow(0 0 3px ${color}66)"/><circle cx="${lx}" cy="${ly}" r="2.5" fill="${color}" style="filter:drop-shadow(0 0 5px ${color})"/></svg>`;
+}
 
-  // Header & Nav Area
-  html += `<div style="padding:24px 24px 0">
-    <div class="fade-in" style="display:flex;justify-content:space-between;align-items:center">
-      <div style="display:flex;align-items:center;gap:12px">
-        <div style="width:10px;height:10px;border-radius:50%;background:var(--red);box-shadow:0 0 16px var(--red),0 0 32px var(--red-glow);animation:pulse 2s infinite"></div>
-        <div>
-           <h1 style="font-size:28px;font-weight:900;letter-spacing:-1px;background:linear-gradient(135deg,var(--red) 0%,var(--purple) 50%,var(--teal) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent">PROTOCOL</h1>
-           <p class="label" style="letter-spacing:4px; margin-top: -2px;">COMMAND CENTER</p>
-        </div>
-      </div>
-      <button onclick="toggleSettings()" style="background:none;border:none;color:var(--text-muted);font-size:20px;cursor:pointer;">⚙️</button>
-    </div>`;
+// ── Utilities ────────────────────────────────────────────
+function toast(msg,type='info'){
+  const el=document.createElement('div');
+  el.className=`toast toast-${type}`;el.textContent=msg;el.onclick=()=>el.remove();
+  document.getElementById('toasts').appendChild(el);
+  setTimeout(()=>{el.style.opacity='0';el.style.transform='translateY(8px)';setTimeout(()=>el.remove(),300);},2500);
+}
+function haptic(ms=10){if(navigator.vibrate)navigator.vibrate(ms);}
+function eH(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function eA(s){return String(s||'').replace(/"/g,'&quot;');}
 
-  const navs = [{k:"command",l:"Command",i:"◉"},{k:"stack",l:"Stack",i:"⬡"},{k:"bio",l:"Bio",i:"♡"},{k:"chat",l:"Claude",i:"◈"}];
-  html += `<div class="nav fade-in" style="margin-top:24px; animation-delay: 0.1s;">`;
-  navs.forEach(n=>{
-    html+=`<button class="nav-btn ${state.view===n.k?'active':''}" onclick="nav('${n.k}')">
-      <span class="icon">${n.i}</span><span>${n.l}</span>
-    </button>`;
-  });
-  html += `</div></div><div style="padding:24px; padding-bottom:120px;">`;
+function fmtChat(raw){
+  let s=String(raw||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  s=s.replace(/^## (.+)$/gm,'<div style="font-size:11px;font-weight:700;color:var(--red);margin:14px 0 5px;letter-spacing:1.5px;text-transform:uppercase;border-bottom:1px solid rgba(255,45,85,.12);padding-bottom:4px">$1</div>');
+  s=s.replace(/^### (.+)$/gm,'<div style="font-size:12px;font-weight:700;color:rgba(255,255,255,.8);margin:10px 0 4px">$1</div>');
+  s=s.replace(/\*\*(.+?)\*\*/g,'<strong style="color:rgba(255,255,255,.95)">$1</strong>');
+  s=s.replace(/\*(.+?)\*/g,'<em style="color:var(--teal)">$1</em>');
+  s=s.replace(/`([^`]+)`/g,'<code style="background:rgba(255,255,255,.07);padding:1px 6px;border-radius:4px;font-family:IBM Plex Mono,monospace;font-size:11px;color:var(--teal)">$1</code>');
+  s=s.replace(/^[•\-\*] (.+)$/gm,'<div style="display:flex;gap:8px;padding:2px 0"><span style="color:var(--red);flex-shrink:0;font-size:10px;margin-top:3px">▸</span><span>$1</span></div>');
+  s=s.replace(/^(\d+)\. (.+)$/gm,'<div style="display:flex;gap:8px;padding:2px 0"><span style="color:var(--purple);flex-shrink:0;font-family:IBM Plex Mono,monospace;font-size:10px;min-width:16px">$1.</span><span>$2</span></div>');
+  s=s.replace(/\n\n/g,'<div style="height:6px"></div>');
+  s=s.replace(/\n/g,'<br>');
+  return s;
+}
 
-  // Views Router
-  if (state.view === "command") html += renderCommandView();
-  if (state.view === "stack") html += renderStackView();
-  if (state.view === "bio") html += renderBioView();
-  if (state.view === "chat") html += renderChatView();
+function buildCtx(){
+  const td=todayStr(),u=state.profile?.name||'the user';
+  const stack=activeSupps().map(s=>`• ${s.name} – ${s.dose} (${s.timing}) [${s.category}]${s.fasted?' [fasting-safe]':' [breaks fast]'}${s.notes?' — '+s.notes:''} | $${s.cost}/serving, ${s.remaining} left`).join('\n');
+  const logCtx=Object.entries(state.log).sort(([a],[b])=>b.localeCompare(a)).slice(0,7).map(([d,e])=>{const names=Object.entries(e).filter(([,v])=>v).map(([id])=>state.supplements.find(s=>s.id===id)?.name||id);return`${d}: ${names.join(', ')||'none'}`;}).join('\n');
+  const bioCtx=Object.entries(state.bio).sort(([a],[b])=>b.localeCompare(a)).slice(0,7).map(([d,b])=>`${d}: Sleep:${b.sleep} Energy:${b.energy} Mood:${b.mood} Focus:${b.focus} Gym:${b.performance}`).join('\n');
+  const jCtx=Object.entries(state.journal).sort(([a],[b])=>b.localeCompare(a)).slice(0,3).map(([d,t])=>`${d}: ${t}`).join('\n');
+  return`You are Claude, ${u}'s elite biohacking & supplement advisor in their PROTOCOL dashboard.
 
-  html += `</div>`;
-  
-  // Settings Overlay (Export/Import)
-  if (state.showSettings) {
-      html += `<div class="overlay">
-        <div class="glass" style="width:90%; max-width:400px;">
-           <h2 class="label" style="font-size: 14px; margin-bottom:20px;">SYSTEM SETTINGS</h2>
-           <button class="btn-primary" style="width:100%; margin-bottom: 12px;" onclick="exportData()">⬇ Export Protocol Data</button>
-           <button class="btn-primary" style="width:100%; background: rgba(255,255,255,0.1); color: white; box-shadow: none;" onclick="document.getElementById('file-upload').click()">⬆ Import Data</button>
-           <input type="file" id="file-upload" style="display:none" accept=".json" onchange="importData(event)">
-           <button class="btn-primary" style="width:100%; margin-top: 24px; background: transparent; color: var(--text-muted); box-shadow: none;" onclick="toggleSettings()">Close</button>
-        </div>
-      </div>`;
+ACTIVE STACK (${activeSupps().length} compounds):
+${stack||'No supplements added yet'}
+
+ADHERENCE LOG (7 days):
+${logCtx||'No data'}
+
+BIOMARKERS (7 days):
+${bioCtx||'No data'}
+
+JOURNAL (recent):
+${jCtx||'No entries'}
+
+TODAY: ${td} | Taken: ${takenToday()}/${totalActive()} (${pctToday()}%) | Monthly burn: $${activeSupps().reduce((s,x)=>s+(x.cost||0)*30,0).toFixed(2)}
+
+Be direct, evidence-based, and knowledgeable. Reference their specific compounds by name. Flag interactions, timing optimizations, cycling needs, and cost efficiencies. Format responses with clear headers and bullets when appropriate.`;
+}
+
+// ── Streaming SSE ────────────────────────────────────────
+async function streamSSE(res,onChunk,onDone){
+  const reader=res.body.getReader(),decoder=new TextDecoder();
+  let buf='',text='';
+  while(true){
+    const{done,value}=await reader.read();if(done)break;
+    buf+=decoder.decode(value,{stream:true});
+    const lines=buf.split('\n');buf=lines.pop()||'';
+    for(const line of lines){
+      if(!line.startsWith('data: '))continue;
+      const d=line.slice(6).trim();if(!d||d==='[DONE]')continue;
+      try{const e=JSON.parse(d);if(e.type==='content_block_delta'&&e.delta?.type==='text_delta'){text+=e.delta.text;onChunk(text);}}catch{}
+    }
+  }
+  onDone(text);
+}
+
+// ── Data Export ──────────────────────────────────────────
+window.exportData=function(){
+  const data={profile:state.profile,supplements:state.supplements,log:state.log,bio:state.bio,journal:state.journal,exportedAt:new Date().toISOString()};
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);const a=document.createElement('a');
+  a.href=url;a.download=`protocol-export-${todayStr()}.json`;a.click();URL.revokeObjectURL(url);
+  toast('Data exported','success');
+};
+
+// ── Render ───────────────────────────────────────────────
+function render(){
+  const app=document.getElementById('app');
+  const fab=document.getElementById('global-fab');
+
+  // ONBOARDING
+  if(!state.onboarded){
+    if(fab)fab.style.display='none';
+    let html='';
+    if(state.onboardStep==="name"){
+      html=`<div style="min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:40px 28px;text-align:center"><div class="fade-in"><div style="width:64px;height:64px;border-radius:20px;background:linear-gradient(135deg,var(--red),var(--purple),var(--teal));display:flex;align-items:center;justify-content:center;margin:0 auto 24px;box-shadow:0 8px 32px var(--red-glow)"><div style="font-size:28px;filter:brightness(2)">◉</div></div><h1 style="font-size:32px;font-weight:900;letter-spacing:-1px;background:linear-gradient(135deg,var(--red) 0%,var(--purple) 40%,var(--teal) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px">PROTOCOL</h1><p style="color:var(--text-muted);font-size:13px;margin-bottom:40px;line-height:1.5">Your personal supplement<br>command center</p><div style="max-width:320px;margin:0 auto;text-align:left"><label class="label" style="display:block;margin-bottom:8px;letter-spacing:2px">WHAT'S YOUR NAME?</label><input id="onboardNameInput" class="input" value="${eA(state.onboardName)}" oninput="state.onboardName=this.value" onkeydown="if(event.key==='Enter'&&state.onboardName.trim())goToTemplates()" placeholder="Enter your name" style="text-align:center;font-size:16px;padding:14px;margin-bottom:20px" autofocus><button onclick="goToTemplates()" style="width:100%;padding:16px;border-radius:14px;border:none;font-size:14px;font-weight:700;cursor:${state.onboardName.trim()?'pointer':'default'};background:${state.onboardName.trim()?'linear-gradient(135deg,var(--red),#bf3050)':'rgba(255,255,255,.03)'};color:${state.onboardName.trim()?'#fff':'rgba(255,255,255,.15)'};box-shadow:${state.onboardName.trim()?'0 4px 20px var(--red-glow)':'none'};transition:all .3s">Continue →</button></div></div></div>`;
+    }
+    if(state.onboardStep==="template"){
+      html=`<div style="min-height:100vh;padding:40px 24px 80px;display:flex;flex-direction:column;justify-content:center"><div class="fade-in" style="max-width:1100px;margin:0 auto;width:100%"><div style="text-align:center;margin-bottom:36px"><p class="label" style="letter-spacing:3px;margin-bottom:8px">WELCOME, ${eH(state.onboardName.toUpperCase())}</p><h2 style="font-size:28px;font-weight:800;color:#fff;margin-bottom:6px">Choose Your Starting Stack</h2><p style="color:var(--text-muted);font-size:13px">Pick a template or start blank. You can customize everything later.</p></div><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin-bottom:28px">`;
+      Object.entries(TEMPLATES).forEach(([key,tmpl])=>{
+        const sel=state.selectedTemplate===key;
+        html+=`<div class="glass hoverable" onclick="selectTemplate('${key}')" style="padding:22px 22px 20px;cursor:pointer;display:flex;flex-direction:column;${sel?`border-color:${tmpl.color}44;background:${tmpl.color}0a;box-shadow:0 4px 24px ${tmpl.color}22`:''}"><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px"><div style="width:52px;height:52px;border-radius:14px;background:${sel?tmpl.color+'15':'rgba(255,255,255,.03)'};border:1px solid ${sel?tmpl.color+'30':'rgba(255,255,255,.04)'};display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0">${tmpl.icon}</div><div style="width:22px;height:22px;border-radius:50%;border:2px solid ${sel?tmpl.color:'rgba(255,255,255,.1)'};display:flex;align-items:center;justify-content:center;flex-shrink:0">${sel?`<div style="width:11px;height:11px;border-radius:50%;background:${tmpl.color}"></div>`:''}</div></div><div style="font-size:17px;font-weight:700;color:${sel?tmpl.color:'#ccc'};margin-bottom:4px">${tmpl.name}</div><div style="font-size:12px;color:var(--text-muted);line-height:1.5;margin-bottom:12px;flex:1">${tmpl.desc}</div>${tmpl.supplements.length?`<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:auto">${tmpl.supplements.map(s=>`<span style="font-size:8px;padding:3px 8px;border-radius:8px;background:${sel?tmpl.color+'0c':'rgba(255,255,255,.03)'};border:1px solid ${sel?tmpl.color+'20':'rgba(255,255,255,.06)'};color:${sel?tmpl.color+'aa':'var(--text-dim)'};font-family:IBM Plex Mono,monospace">${s.name}</span>`).join('')}</div>`:`<div style="font-size:10px;color:var(--text-dim);margin-top:auto;font-family:IBM Plex Mono,monospace;padding:6px 0">Empty stack — add your own compounds</div>`}</div>`;
+      });
+      html+=`</div><div style="display:flex;gap:12px;justify-content:center;max-width:500px;margin:0 auto"><button onclick="state.onboardStep='name';render()" style="padding:16px 28px;border-radius:14px;border:1px solid var(--surface-border);background:transparent;color:var(--text-muted);font-size:13px;cursor:pointer">← Back</button><button onclick="completeOnboarding()" style="flex:1;max-width:320px;padding:16px;border-radius:14px;border:none;font-size:14px;font-weight:700;cursor:${state.selectedTemplate?'pointer':'default'};background:${state.selectedTemplate?'linear-gradient(135deg,var(--red),#bf3050)':'rgba(255,255,255,.03)'};color:${state.selectedTemplate?'#fff':'rgba(255,255,255,.15)'};box-shadow:${state.selectedTemplate?'0 4px 20px var(--red-glow)':'none'};transition:all .3s">Launch Protocol →</button></div></div></div>`;
+    }
+    app.innerHTML=html;
+    if(state.onboardStep==="name"){const inp=document.getElementById('onboardNameInput');if(inp)setTimeout(()=>inp.focus(),100);}
+    return;
   }
 
-  app.innerHTML = html;
-}
+  // MAIN APP
+  if(fab)fab.style.display='flex';
+  const td=todayStr(),pct=pctToday(),taken=takenToday(),total=totalActive();
+  const now=new Date();
+  const timeStr=now.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});
+  const a7=adherence7(),avgA=Math.round(a7.reduce((a,b)=>a+b,0)/7);
+  const spend=activeSupps().reduce((s,x)=>s+(x.cost||0)*30,0);
+  const low=state.supplements.filter(s=>s.active&&s.remaining>0&&s.remaining<=10);
+  const todayBio=state.bio[td];
+  const bestStreak=Math.max(...state.supplements.filter(s=>s.active).map(s=>getStreak(s.id)),0);
+  const filtered=state.supplements.filter(s=>state.filter==="All"||s.category===state.filter);
+  const dayLabels=["S","M","T","W","T","F","S"];
+  const windows=[
+    {label:"FASTED AM",time:"6:00–8:00",items:activeSupps().filter(s=>s.fasted&&s.timing==="Morning"),color:"#bf5af2"},
+    {label:"WITH MEAL",time:"12:00–13:00",items:activeSupps().filter(s=>s.timing==="With meal"),color:"#32d74b"},
+    {label:"PRE-WORKOUT",time:"15:00–16:00",items:activeSupps().filter(s=>s.timing==="Pre-workout"),color:"#ff2d55"},
+    {label:"POST-WORKOUT",time:"17:00–18:00",items:activeSupps().filter(s=>s.timing==="Post-workout"),color:"#ffd60a"},
+    {label:"EVENING",time:"20:00–21:00",items:activeSupps().filter(s=>s.timing==="Evening"||s.timing==="As needed"),color:"#6e6eff"},
+  ].filter(w=>w.items.length>0);
 
-// Sub-renderers to keep code clean
-function renderCommandView() {
-   const total = activeSupps().length; const taken = activeSupps().filter(s=>isTaken(s.id)).length;
-   const pct = total>0?Math.round(taken/total*100):0;
-   
-   return `<div class="glass fade-in d2" style="padding:24px">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
-        <span class="label" style="font-size: 12px;">Daily Optimization</span>
-        <span style="font-size:32px;font-weight:900;color:${pct===100?'var(--green)':'var(--red)'}">${pct}%</span>
-      </div>
-      <div style="height:6px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden;box-shadow: inset 0 1px 3px rgba(0,0,0,0.5);">
-        <div style="height:100%;width:${pct}%;border-radius:3px;transition:width 1.2s cubic-bezier(0.16, 1, 0.3, 1);
-          background:${pct===100?'linear-gradient(90deg,var(--green),#72efdd)':'linear-gradient(90deg,var(--red),var(--purple),var(--teal))'};
-          box-shadow:${pct===100?'0 0 16px rgba(50,215,75,0.6)':'0 0 16px var(--red-glow)'}"></div>
-      </div>
-    </div>
-    <div style="margin-top:20px;text-align:center;">
-       <p class="label" style="margin-bottom: 12px;">Active Compounds</p>
-       <div style="display:flex; gap:12px; flex-wrap:wrap; justify-content:center;">
-         ${activeSupps().map(s => {
-             const t = isTaken(s.id);
-             return `<div class="glass hoverable d3 fade-in" onclick="toggleTaken('${s.id}')" style="padding: 12px; cursor:pointer; width: calc(50% - 6px); border-color: ${t ? 'var(--red)' : 'rgba(255,255,255,0.08)'}; background: ${t ? 'rgba(255,45,85,0.1)' : 'var(--surface)'};">
-                <div style="font-size: 14px; font-weight: 700; color: ${t ? '#fff' : 'var(--text-dim)'};">${s.name}</div>
-                <div class="mono label-sm" style="margin-top: 4px;">${s.dose}</div>
-             </div>`;
-         }).join('')}
-       </div>
+  let html='';
+
+  // HEADER
+  html+=`<div style="padding:20px 24px 0"><div class="fade-in" style="display:flex;justify-content:space-between;align-items:flex-start"><div><div style="display:flex;align-items:center;gap:10px"><div style="width:8px;height:8px;border-radius:50%;background:var(--red);box-shadow:0 0 12px var(--red),0 0 24px var(--red-glow);animation:pulse 2s infinite"></div><h1 style="font-size:26px;font-weight:900;letter-spacing:-1px;background:linear-gradient(135deg,var(--red) 0%,var(--purple) 40%,var(--teal) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent">PROTOCOL</h1></div><p class="label" style="margin:2px 0 0 18px;letter-spacing:3px">${state.profile?.name?eH(state.profile.name.toUpperCase())+' · ':''}COMMAND CENTER</p></div><div style="text-align:right"><div id="live-clock" class="mono" style="font-size:22px;font-weight:300;color:rgba(255,255,255,.6);letter-spacing:2px">${timeStr}</div><div class="label-sm" style="margin-top:2px;letter-spacing:1.5px">${td}</div></div></div>`;
+
+  // NAV
+  const navs=[{k:"command",l:"Command",i:"◉"},{k:"stack",l:"Stack",i:"⬡"},{k:"timing",l:"Timing",i:"◷"},{k:"bio",l:"Bio",i:"♡"},{k:"chat",l:"Claude",i:"◈"}];
+  html+=`<div class="nav" style="margin-top:16px">`;
+  navs.forEach(n=>{html+=`<button class="nav-btn ${state.view===n.k?'active':''}" onclick="nav('${n.k}')"><span class="icon">${n.i}</span><span>${n.l}</span></button>`;});
+  html+=`</div></div>`;
+
+  // CONTENT
+  html+=`<div style="padding:16px 20px 140px">`;
+
+  // ═══ COMMAND ═══
+  if(state.view==="command"){
+    html+=`<div class="fade-in d1" style="display:flex;justify-content:space-around;padding:10px 0">
+      ${svgGauge(taken,total,96,"var(--red)","Today",`of ${total}`)}
+      ${svgGauge(avgA,100,96,"var(--purple)","7d Avg","%")}
+      ${svgGauge(bestStreak,30,96,"var(--teal)","Streak","days")}
     </div>`;
+    // Progress
+    html+=`<div class="glass fade-in d2" style="padding:16px 20px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><span class="label" style="letter-spacing:2px">DAILY PROGRESS</span><span style="font-size:24px;font-weight:800;color:${pct===100?'var(--green)':'var(--red)'}">${pct}%</span></div><div style="height:4px;background:rgba(255,255,255,.04);border-radius:2px;overflow:hidden"><div style="height:100%;width:${pct}%;border-radius:2px;transition:width 1s;background:${pct===100?'linear-gradient(90deg,var(--green),#72efdd)':'linear-gradient(90deg,var(--red),var(--purple),var(--teal))'};box-shadow:${pct===100?'0 0 12px rgba(50,215,75,.5)':'0 0 12px var(--red-glow)'}"></div></div></div>`;
+    // 7-day bars
+    html+=`<div class="glass fade-in d3"><div style="display:flex;justify-content:space-between;align-items:center"><div><div class="label" style="letter-spacing:2px">7-DAY ADHERENCE</div><div style="display:flex;gap:6px;margin-top:8px">`;
+    a7.forEach((v,i)=>{const dayIdx=(now.getDay()-6+i+7)%7;html+=`<div style="display:flex;flex-direction:column;align-items:center;gap:4px"><div style="width:24px;height:40px;background:rgba(255,255,255,.03);border-radius:4px;display:flex;align-items:flex-end;overflow:hidden"><div style="width:100%;height:${v}%;background:${v===100?'var(--green)':v>50?'linear-gradient(180deg,var(--purple),var(--red))':'var(--red)'};border-radius:4px 4px 0 0;transition:height .8s ${i*.05}s"></div></div><span class="label-sm">${dayLabels[dayIdx]}</span></div>`;});
+    html+=`</div></div><div>${svgSparkline(a7,"var(--purple)",100,32)}</div></div></div>`;
+    // Biomarkers summary
+    html+=`<div class="glass fade-in d4"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><span class="label" style="letter-spacing:2px">BIOMARKERS</span>${!todayBio?`<button onclick="openBioModal()" style="background:rgba(255,45,85,.12);border:1px solid rgba(255,45,85,.2);border-radius:8px;padding:4px 12px;color:var(--red);font-size:10px;font-family:IBM Plex Mono,monospace;cursor:pointer">LOG TODAY</button>`:`<span class="label-sm">LOGGED ✓</span>`}</div><div style="display:flex;justify-content:space-between">`;
+    BIOS.forEach(b=>{const hist=bioHistory(b.key);html+=`<div style="text-align:center;flex:1"><div style="font-size:16px">${b.icon}</div><div style="margin:4px 0">${svgSparkline(hist,b.color,40,18)}</div><div style="font-size:16px;font-weight:700;color:${todayBio?b.color:'var(--text-ghost)'}">${todayBio?.[b.key]||'—'}</div><div class="label-sm" style="margin-top:2px">${b.label}</div></div>`;});
+    html+=`</div></div>`;
+    // Stats row
+    html+=`<div style="display:flex;gap:12px" class="fade-in d5"><div class="glass" style="flex:1;padding:16px"><div class="label" style="letter-spacing:2px">MONTHLY BURN</div><div style="font-size:28px;font-weight:800;margin-top:4px"><span style="color:var(--yellow)">$${spend.toFixed(0)}</span><span style="font-size:11px;color:var(--text-muted);margin-left:4px">/mo</span></div></div><div class="glass" style="flex:1;padding:16px;${low.length?'border-color:rgba(255,45,85,.15)':''}"><div class="label" style="letter-spacing:2px">LOW STOCK</div>${low.length?low.map(s=>`<div style="font-size:11px;color:var(--red);margin-top:4px">⚠ ${s.name} — ${s.remaining} left</div>`).join(''):`<div style="font-size:22px;font-weight:800;color:var(--green);margin-top:4px">ALL GOOD</div>`}</div></div>`;
+    // Settings button
+    html+=`<div class="fade-in d6" style="margin-top:12px"><button onclick="openSettings()" style="width:100%;padding:12px;border-radius:12px;border:1px solid var(--surface-border);background:transparent;color:var(--text-muted);font-size:11px;font-family:IBM Plex Mono,monospace;cursor:pointer;letter-spacing:1px">⚙ SETTINGS & EXPORT</button></div>`;
+  }
+
+  // ═══ STACK ═══
+  if(state.view==="stack"){
+    html+=`<div style="display:flex;gap:6px;overflow-x:auto;padding-bottom:12px;margin-bottom:4px">`;
+    CATEGORIES.forEach(cat=>{const c=cat!=="All"?CAT[cat]:null;const active=state.filter===cat;html+=`<button class="pill ${active?'active':''}" onclick="setFilter('${cat}')" style="${active&&c?`background:${c.accent}18;border-color:${c.accent}44;color:${c.accent};box-shadow:0 0 12px ${c.accent}22`:''}">${cat}</button>`;});
+    html+=`</div><div style="display:flex;flex-direction:column;gap:8px">`;
+    if(!filtered.length){html+=`<div style="text-align:center;padding:48px 20px;color:var(--text-muted)"><div style="font-size:40px;margin-bottom:12px">⬡</div><p style="font-size:13px">No supplements in this category.<br>Tap + to add one.</p></div>`;}
+    filtered.forEach((s,i)=>{
+      const c=CAT[s.category]||CAT.Essential,taken=isTaken(s.id),streak=getStreak(s.id),compound=getCompoundInfo(s.name);
+      const icon=getCompoundIcon(s.name,taken?c.accent:'rgba(255,255,255,.25)');
+      html+=`<div class="fade-in d${Math.min(i+1,6)}"><div class="glass hoverable" style="padding:16px 18px;opacity:${s.active?1:.35};${taken?`border-color:${c.accent}33;background:${c.accent}08`:''}">
+        ${taken?`<div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,${c.accent},${c.accent}88);border-radius:16px 16px 0 0"></div>`:''}
+        <div style="display:flex;align-items:flex-start;gap:14px">
+          <div style="flex-shrink:0;width:56px;height:56px;border-radius:12px;background:${taken?c.accent+'0a':'rgba(255,255,255,.02)'};border:1px solid ${taken?c.accent+'22':'rgba(255,255,255,.04)'};display:flex;align-items:center;justify-content:center;transition:all .3s">${icon}</div>
+          <div style="flex:1;min-width:0">
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span style="font-size:15px;font-weight:700;color:${taken?c.accent:'#ccc'};transition:color .3s">${eH(s.name)}</span>${streak>1?`<span style="font-size:9px;background:${c.accent}15;color:${c.accent};padding:2px 8px;border-radius:10px;font-family:IBM Plex Mono,monospace;font-weight:600;border:1px solid ${c.accent}22">${streak}d 🔥</span>`:''}</div>
+            ${compound.formula!=='—'?`<div style="display:flex;gap:10px;margin-top:4px"><span class="mono" style="font-size:9px;color:${taken?c.accent+'99':'rgba(255,255,255,.2)'}">${compound.formula}</span><span class="mono" style="font-size:8px;color:rgba(255,255,255,.12)">${compound.mw}</span></div>`:''}
+            <div style="font-size:11px;color:var(--text-dim);margin-top:4px;font-family:IBM Plex Mono,monospace;display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span class="sup-tag">${eH(s.dose)}</span><span>${eH(s.timing)}</span>${s.fasted?`<span style="color:rgba(50,215,75,.5);font-size:9px">● fasting-safe</span>`:''}</div>
+            ${compound.mechanism.length?`<div style="display:flex;gap:4px;margin-top:6px;flex-wrap:wrap">${compound.mechanism.map(m=>`<span style="font-size:8px;padding:2px 7px;border-radius:8px;background:${taken?c.accent+'12':'rgba(255,255,255,.03)'};border:1px solid ${taken?c.accent+'20':'rgba(255,255,255,.04)'};color:${taken?c.accent+'bb':'rgba(255,255,255,.2)'};font-family:IBM Plex Mono,monospace">${m}</span>`).join('')}</div>`:''}
+            ${s.notes?`<div style="font-size:10px;color:var(--text-muted);margin-top:4px">${eH(s.notes)}</div>`:''}
+            ${s.remaining>0&&s.remaining<=10?`<div style="font-size:9px;color:var(--red);margin-top:4px;font-family:IBM Plex Mono,monospace">⚠ ${s.remaining} servings left</div>`:''}
+          </div>
+          <div style="display:flex;flex-direction:column;gap:6px;align-items:center;flex-shrink:0">
+            <div class="check-circle ${taken?'taken':''}" onclick="${s.active?`toggleTaken('${s.id}')`:''}" style="${taken?`border-color:${c.accent};background:${c.accent}22;color:${c.accent};box-shadow:0 0 16px ${c.accent}33`:''}">${taken?'✓':''}</div>
+            <button onclick="startEdit('${s.id}')" style="background:none;border:none;color:rgba(255,255,255,.12);cursor:pointer;font-size:12px;padding:2px">✎</button>
+          </div>
+        </div>
+      </div></div>`;
+    });
+    html+=`</div>`;
+  }
+
+  // ═══ TIMING ═══
+  if(state.view==="timing"){
+    html+=`<div class="label" style="margin-bottom:12px;letter-spacing:2px">OPTIMAL DOSING WINDOWS</div>`;
+    html+=`<div style="position:relative;padding-left:28px"><div style="position:absolute;left:12px;top:0;bottom:0;width:1px;background:rgba(255,255,255,.06)"></div>`;
+    windows.forEach((w,i)=>{
+      html+=`<div class="fade-in d${Math.min(i+1,6)}" style="margin-bottom:16px;position:relative"><div class="timeline-dot" style="background:${w.color};box-shadow:0 0 10px ${w.color}66"></div><div class="glass" style="padding:14px 18px;margin-left:8px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><span class="mono" style="font-size:11px;font-weight:700;color:${w.color};letter-spacing:1.5px">${w.label}</span><span class="mono" style="font-size:10px;color:var(--text-muted)">${w.time}</span></div>`;
+      w.items.forEach(s=>{
+        const t=isTaken(s.id),miniIcon=getCompoundIcon(s.name,t?w.color:'rgba(255,255,255,.2)');
+        html+=`<div style="display:flex;align-items:center;padding:8px 0;border-top:1px solid rgba(255,255,255,.03);gap:10px"><div style="width:32px;height:32px;flex-shrink:0;border-radius:8px;background:${t?w.color+'0a':'rgba(255,255,255,.02)'};border:1px solid ${t?w.color+'18':'rgba(255,255,255,.03)'};display:flex;align-items:center;justify-content:center;overflow:hidden"><div style="transform:scale(.57);transform-origin:center">${miniIcon}</div></div><div style="flex:1"><span style="font-size:13px;font-weight:600;color:${t?w.color:'rgba(255,255,255,.6)'}">${eH(s.name)}</span><span class="mono" style="font-size:10px;color:var(--text-muted);margin-left:8px">${eH(s.dose)}</span></div><div class="check-circle ${t?'taken':''}" onclick="toggleTaken('${s.id}')" style="width:28px;height:28px;font-size:13px;${t?`border-color:${w.color};background:${w.color}22;color:${w.color}`:''}">${t?'✓':''}</div></div>`;
+      });
+      html+=`</div></div>`;
+    });
+    html+=`</div>`;
+    if(!windows.length){html+=`<div style="text-align:center;padding:48px 20px;color:var(--text-muted)"><div style="font-size:36px;margin-bottom:12px">◷</div><p style="font-size:13px">No timing data yet.<br>Add supplements with timing to see windows.</p></div>`;}
+    html+=`<div class="glass fade-in d5" style="margin-top:8px;padding:16px;border-color:rgba(191,90,242,.1)"><div class="mono" style="font-size:10px;letter-spacing:2px;color:var(--purple);margin-bottom:8px">IF PROTOCOL NOTE</div><div style="font-size:12px;color:var(--text-dim);line-height:1.6"><strong style="color:rgba(255,255,255,.6)">Fasting-safe:</strong> ${activeSupps().filter(s=>s.fasted).map(s=>eH(s.name)).join(', ')||'None'}</div><div style="font-size:12px;color:var(--text-dim);line-height:1.6;margin-top:4px"><strong style="color:rgba(255,255,255,.6)">Require food:</strong> ${activeSupps().filter(s=>!s.fasted).map(s=>eH(s.name)).join(', ')||'None'}</div></div>`;
+  }
+
+  // ═══ BIO ═══
+  if(state.view==="bio"){
+    html+=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px"><div class="label" style="letter-spacing:2px">BIOMARKER TRACKING</div>${!todayBio?`<button onclick="openBioModal()" style="background:rgba(255,45,85,.12);border:1px solid rgba(255,45,85,.2);border-radius:8px;padding:6px 14px;color:var(--red);font-size:10px;font-family:IBM Plex Mono,monospace;cursor:pointer;font-weight:600">+ LOG TODAY</button>`:''}</div>`;
+    BIOS.forEach((b,i)=>{
+      const hist=bioHistory(b.key),latest=todayBio?.[b.key];
+      const avg=hist.filter(v=>v>0),avgVal=avg.length?(avg.reduce((a,c)=>a+c,0)/avg.length).toFixed(1):'—';
+      html+=`<div class="glass fade-in d${Math.min(i+1,6)}" style="padding:16px 18px;margin-bottom:10px"><div style="display:flex;justify-content:space-between;align-items:center"><div style="display:flex;align-items:center;gap:10px"><span style="font-size:20px">${b.icon}</span><div><div style="font-size:13px;font-weight:600;color:${b.color}">${b.label}</div><div class="label-sm" style="margin-top:2px">7d avg: ${avgVal}</div></div></div><div style="display:flex;align-items:center;gap:14px">${svgSparkline(hist,b.color,90,28)}<div style="font-size:28px;font-weight:800;color:${latest?b.color:'var(--text-ghost)'};min-width:28px;text-align:right">${latest||'—'}</div></div></div></div>`;
+    });
+    // Adherence log
+    html+=`<div class="label" style="margin:20px 0 12px;letter-spacing:2px">ADHERENCE HISTORY</div>`;
+    const logEntries=Object.entries(state.log).sort(([a],[b])=>b.localeCompare(a)).slice(0,10);
+    logEntries.forEach(([date,entries])=>{
+      const t=Object.values(entries).filter(Boolean).length,tot=totalActive(),p=tot>0?Math.round(t/tot*100):0;
+      html+=`<div style="display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.03)"><span class="mono" style="font-size:10px;color:${date===td?'var(--red)':'var(--text-muted)'};width:72px;flex-shrink:0">${date===td?'TODAY':date.slice(5)}</span><div style="flex:1;height:3px;background:rgba(255,255,255,.04);border-radius:2px;overflow:hidden"><div style="height:100%;width:${p}%;background:${p===100?'var(--green)':'linear-gradient(90deg,var(--red),var(--purple))'};border-radius:2px"></div></div><span class="mono" style="font-size:11px;color:${p===100?'var(--green)':p>50?'var(--yellow)':'var(--red)'};width:32px;text-align:right;font-weight:600">${p}%</span></div>`;
+    });
+    // Journal
+    html+=`<div class="label" style="margin:20px 0 12px;letter-spacing:2px">DAILY JOURNAL</div>`;
+    const todayJournal=state.journal[td];
+    if(!todayJournal){
+      html+=`<div class="glass fade-in" style="padding:14px 16px"><textarea id="journalInput" class="input" placeholder="How are you feeling today? Note anything unusual about energy, sleep, or reactions to your stack..." style="border:none;background:transparent;padding:0;font-size:13px;min-height:70px" oninput="state.journalInput=this.value">${eH(state.journalInput)}</textarea><button onclick="saveJournal()" style="margin-top:10px;padding:8px 20px;border-radius:9px;border:none;background:rgba(191,90,242,.15);color:var(--purple);font-size:11px;font-weight:600;cursor:pointer;font-family:IBM Plex Mono,monospace;border:1px solid rgba(191,90,242,.2)">SAVE NOTE</button></div>`;
+    }
+    const journalEntries=Object.entries(state.journal).sort(([a],[b])=>b.localeCompare(a)).slice(0,5);
+    journalEntries.forEach(([date,text])=>{
+      html+=`<div class="journal-card fade-in"><div class="label-sm" style="color:var(--purple);margin-bottom:6px">${date===td?'TODAY':date}</div><div style="font-size:12px;color:var(--text-dim);line-height:1.6">${eH(text)}</div></div>`;
+    });
+  }
+
+  // ═══ CLAUDE ═══
+  if(state.view==="chat"){
+    html+=`<div class="sub-tabs"><button class="sub-tab ${state.subView==='chat'?'active':''}" onclick="state.subView='chat';render()">CHAT</button><button class="sub-tab ${state.subView==='insights'?'active':''}" onclick="state.subView='insights';render()">INSIGHTS</button><button class="sub-tab ${state.subView==='analyze'?'active':''}" onclick="state.subView='analyze';render()">ANALYZE</button></div>`;
+
+    // ── Chat sub-view ──
+    if(state.subView==='chat'){
+      html+=`<div style="display:flex;flex-direction:column;height:calc(100vh - 260px)"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><div style="display:flex;align-items:center;gap:8px"><div style="width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green)"></div><span class="label" style="letter-spacing:2px">CLAUDE ONLINE</span></div>${state.chat.length?`<button onclick="clearChat()" style="background:none;border:1px solid var(--surface-border);border-radius:6px;color:var(--text-muted);font-size:9px;padding:3px 10px;cursor:pointer;font-family:IBM Plex Mono,monospace">CLEAR</button>`:''}</div>`;
+      html+=`<div id="chatScroll" style="flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:10px;padding-bottom:12px">`;
+      if(!state.chat.length){
+        html+=`<div style="text-align:center;padding:40px 20px"><div style="font-size:40px;margin-bottom:16px;filter:drop-shadow(0 0 20px var(--purple-glow))">◈</div><p style="color:var(--text-muted);font-size:13px;line-height:1.6;max-width:300px;margin:0 auto">Your protocol advisor. Full context on your stack, adherence, and biomarkers.</p><div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:20px">`;
+        ["Interaction check","Optimize timing","Should I cycle?","Cost optimization","What am I missing?","Stack for sleep"].forEach(q=>{html+=`<button onclick="setChatInput('${q.replace(/'/g,"\\'")}')" style="background:rgba(255,255,255,.03);border:1px solid var(--surface-border);border-radius:20px;color:rgba(255,255,255,.35);font-size:10px;padding:6px 14px;cursor:pointer;font-family:inherit">${q}</button>`;});
+        html+=`</div></div>`;
+      }
+      state.chat.forEach((msg,idx)=>{
+        if(msg.role==='user'){html+=`<div style="display:flex;justify-content:flex-end"><div class="chat-msg chat-user">${eH(msg.content)}</div></div>`;}
+        else{html+=`<div style="display:flex;justify-content:flex-start"><div id="chat-msg-${idx}" class="chat-msg chat-ai">${fmtChat(msg.content)}${msg.streaming?'<span class="stream-cursor">▋</span>':''}</div></div>`;}
+      });
+      if(state.chatLoading&&!state.chat.some(m=>m.streaming)){html+=`<div style="display:flex;justify-content:flex-start"><div class="chat-ai" style="padding:12px 16px;border-radius:16px 16px 16px 4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--purple);animation:dotPulse 1.2s 0s infinite;margin:0 2px"></span><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--purple);animation:dotPulse 1.2s .2s infinite;margin:0 2px"></span><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--purple);animation:dotPulse 1.2s .4s infinite;margin:0 2px"></span></div></div>`;}
+      html+=`<div id="chatEnd"></div></div>`;
+      html+=`<div style="display:flex;gap:8px;padding:12px 0 0;border-top:1px solid rgba(255,255,255,.04)"><input id="chatInput" class="input" value="${eA(state.chatInput)}" oninput="state.chatInput=this.value" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChat();}" placeholder="Ask about your protocol..." style="flex:1"><button onclick="sendChat()" ${state.chatLoading||!state.chatInput.trim()?'disabled':''} style="padding:12px 20px;border-radius:12px;border:none;font-size:14px;font-weight:700;cursor:${state.chatInput.trim()?'pointer':'default'};transition:all .3s;background:${state.chatInput.trim()?'linear-gradient(135deg,var(--red),#bf3050)':'rgba(255,255,255,.03)'};color:${state.chatInput.trim()?'#fff':'rgba(255,255,255,.15)'};box-shadow:${state.chatInput.trim()?'0 4px 16px var(--red-glow)':'none'}">→</button></div></div>`;
+    }
+
+    // ── Insights sub-view ──
+    if(state.subView==='insights'){
+      html+=`<div><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><div><div class="label" style="letter-spacing:2px">WEEKLY PERFORMANCE REPORT</div><div style="font-size:11px;color:var(--text-muted);margin-top:4px">AI analysis of your stack + biomarkers</div></div><button onclick="generateInsights()" ${state.insightsLoading?'disabled':''} style="padding:8px 16px;border-radius:10px;border:none;background:${state.insightsLoading?'rgba(255,255,255,.03)':'rgba(191,90,242,.15)'};color:${state.insightsLoading?'var(--text-muted)':'var(--purple)'};font-size:10px;font-weight:700;cursor:${state.insightsLoading?'default':'pointer'};font-family:IBM Plex Mono,monospace;border:1px solid ${state.insightsLoading?'transparent':'rgba(191,90,242,.25)'}">${state.insightsLoading?'GENERATING…':'GENERATE'}</button></div>`;
+      if(state.insightsContent){
+        html+=`<div class="glass insights-body" style="padding:20px">${fmtChat(state.insightsContent)}</div>`;
+      } else if(!state.insightsLoading){
+        html+=`<div style="text-align:center;padding:48px 20px"><div style="font-size:40px;margin-bottom:16px">✦</div><p style="color:var(--text-muted);font-size:13px;line-height:1.6">Generate a comprehensive weekly analysis of your supplement stack, adherence patterns, and biomarker trends.</p></div>`;
+      }
+      if(state.insightsLoading){html+=`<div class="glass" style="padding:20px;text-align:center"><div style="color:var(--text-muted);font-size:12px;margin-bottom:12px;font-family:IBM Plex Mono,monospace">ANALYZING YOUR PROTOCOL…</div><div id="insights-stream" class="insights-body" style="text-align:left"></div></div>`;}
+      html+=`</div>`;
+    }
+
+    // ── Analyze sub-view ──
+    if(state.subView==='analyze'){
+      html+=`<div><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><div><div class="label" style="letter-spacing:2px">STACK ANALYZER</div><div style="font-size:11px;color:var(--text-muted);margin-top:4px">Interactions, redundancies & gaps</div></div><button onclick="analyzeStack()" ${state.analyzeLoading?'disabled':''} style="padding:8px 16px;border-radius:10px;border:none;background:${state.analyzeLoading?'rgba(255,255,255,.03)':'rgba(255,45,85,.12)'};color:${state.analyzeLoading?'var(--text-muted)':'var(--red)'};font-size:10px;font-weight:700;cursor:${state.analyzeLoading?'default':'pointer'};font-family:IBM Plex Mono,monospace;border:1px solid ${state.analyzeLoading?'transparent':'rgba(255,45,85,.2)'}">${state.analyzeLoading?'ANALYZING…':'RUN ANALYSIS'}</button></div>`;
+      if(state.analyzeContent){
+        html+=`<div class="glass insights-body" style="padding:20px">${fmtChat(state.analyzeContent)}</div>`;
+      } else if(!state.analyzeLoading){
+        html+=`<div style="text-align:center;padding:48px 20px"><div style="font-size:40px;margin-bottom:16px">⬡</div><p style="color:var(--text-muted);font-size:13px;line-height:1.6">Run a deep analysis of your stack to identify potential interactions, nutrient redundancies, gaps in coverage, and timing conflicts.</p></div>`;
+      }
+      if(state.analyzeLoading){html+=`<div class="glass" style="padding:20px;text-align:center"><div style="color:var(--text-muted);font-size:12px;margin-bottom:12px;font-family:IBM Plex Mono,monospace">RUNNING ANALYSIS…</div><div id="analyze-stream" class="insights-body" style="text-align:left"></div></div>`;}
+      html+=`</div>`;
+    }
+  }
+
+  // ═══ ADD/EDIT ═══
+  if(state.showAdd){
+    const f=state.form;
+    html+=`</div>`; // close content before overlay
+    html+=`<div class="overlay" onclick="if(event.target===this)closeAdd()"><div class="sheet"><div class="sheet-handle"></div><div class="label" style="margin-bottom:16px;letter-spacing:2px">${state.editId?'MODIFY COMPOUND':'ADD TO PROTOCOL'}</div><div style="display:flex;flex-direction:column;gap:14px">`;
+    [{k:"name",l:"Compound Name",p:"e.g. Magnesium L-Threonate"},{k:"dose",l:"Dosage",p:"e.g. 200mg"},{k:"notes",l:"Notes",p:"Mechanism, sourcing, stacking notes..."}].forEach(fd=>{html+=`<div><label class="label" style="display:block;margin-bottom:6px;letter-spacing:1.5px">${fd.l}</label><input class="input" value="${eA(f[fd.k])}" oninput="state.form.${fd.k}=this.value" placeholder="${fd.p}"></div>`;});
+    html+=`<div style="display:flex;gap:12px"><div style="flex:1"><label class="label" style="display:block;margin-bottom:6px">$/SERVING</label><input class="input" value="${eA(f.cost)}" oninput="state.form.cost=this.value" placeholder="0.25"></div><div style="flex:1"><label class="label" style="display:block;margin-bottom:6px">SERVINGS LEFT</label><input class="input" value="${eA(f.remaining)}" oninput="state.form.remaining=this.value" placeholder="60"></div></div>`;
+    html+=`<div><label class="label" style="display:block;margin-bottom:6px">TIMING</label><div style="display:flex;flex-wrap:wrap;gap:6px">`;
+    TIMINGS.forEach(t=>{const a=f.timing===t;html+=`<button class="pill ${a?'active':''}" onclick="state.form.timing='${t}';render()" style="${a?'background:rgba(255,45,85,.12);border-color:rgba(255,45,85,.3);color:var(--red)':''}">${t}</button>`;});
+    html+=`</div></div><div><label class="label" style="display:block;margin-bottom:6px">CATEGORY</label><div style="display:flex;flex-wrap:wrap;gap:6px">`;
+    CATEGORIES.filter(c=>c!=="All").forEach(cat=>{const c=CAT[cat],a=f.category===cat;html+=`<button class="pill ${a?'active':''}" onclick="state.form.category='${cat}';render()" style="${a?`background:${c.accent}15;border-color:${c.accent}44;color:${c.accent}`:''}">${cat}</button>`;});
+    html+=`</div></div><div style="display:flex;align-items:center;gap:10px"><button class="toggle" onclick="state.form.fasted=!state.form.fasted;render()" style="background:${f.fasted?'var(--green)':'rgba(255,255,255,.1)'}"><div class="thumb" style="left:${f.fasted?'21px':'3px'}"></div></button><span class="mono" style="font-size:11px;color:var(--text-dim)">Fasting-safe</span></div>`;
+    html+=`<div style="display:flex;gap:10px;margin-top:8px"><button class="btn-primary" onclick="addOrUpdate()" style="flex:1">${state.editId?'Update Compound':'Add to Protocol'}</button>${state.editId?`<button class="btn-danger" onclick="deleteSup()">Delete</button>`:''}</div>`;
+    html+=`</div></div></div>`;
+    app.innerHTML=html;
+    return;
+  }
+
+  html+=`</div>`; // close content
+
+  // SETTINGS MODAL
+  if(state.showSettings){
+    html+=`<div class="overlay" onclick="if(event.target===this)closeSettings()"><div class="sheet"><div class="sheet-handle"></div><div class="label" style="margin-bottom:20px;letter-spacing:2px">SETTINGS</div>`;
+    html+=`<div class="settings-row"><div><div style="font-size:13px;font-weight:600;color:var(--text)">Export Data</div><div style="font-size:11px;color:var(--text-muted);margin-top:2px">Download your full stack & history as JSON</div></div><button onclick="exportData()" style="padding:8px 16px;border-radius:9px;border:1px solid rgba(50,215,75,.2);background:rgba(50,215,75,.1);color:var(--green);font-size:10px;font-weight:700;cursor:pointer;font-family:IBM Plex Mono,monospace">EXPORT</button></div>`;
+    html+=`<div class="settings-row"><div><div style="font-size:13px;font-weight:600;color:var(--text)">Notifications</div><div style="font-size:11px;color:var(--text-muted);margin-top:2px">Dosing reminders via browser notifications</div></div><button onclick="requestNotifications()" style="padding:8px 16px;border-radius:9px;border:1px solid rgba(110,110,255,.2);background:rgba(110,110,255,.1);color:var(--blue);font-size:10px;font-weight:700;cursor:pointer;font-family:IBM Plex Mono,monospace">${Notification.permission==='granted'?'ENABLED ✓':'ENABLE'}</button></div>`;
+    html+=`<div class="settings-row"><div><div style="font-size:13px;font-weight:600;color:var(--text)">Profile</div><div style="font-size:11px;color:var(--text-muted);margin-top:2px">Logged in as ${eH(state.profile?.name||'User')}</div></div></div>`;
+    html+=`<div class="settings-row"><div><div style="font-size:13px;font-weight:600;color:var(--red)">Reset Profile</div><div style="font-size:11px;color:var(--text-muted);margin-top:2px">Erase all data and start over</div></div><button onclick="resetProfile()" style="padding:8px 16px;border-radius:9px;border:1px solid rgba(255,45,85,.2);background:rgba(255,45,85,.08);color:var(--red);font-size:10px;font-weight:700;cursor:pointer;font-family:IBM Plex Mono,monospace">RESET</button></div>`;
+    html+=`<button onclick="closeSettings()" style="width:100%;margin-top:20px;padding:14px;border-radius:12px;border:1px solid var(--surface-border);background:transparent;color:var(--text-muted);font-size:13px;cursor:pointer">Close</button>`;
+    html+=`</div></div>`;
+  }
+
+  // BIO MODAL
+  if(state.showBioModal){
+    html+=`<div class="overlay" onclick="if(event.target===this)closeBioModal()"><div class="sheet"><div class="sheet-handle"></div><div class="label" style="margin-bottom:20px;letter-spacing:2px">LOG BIOMARKERS — ${td}</div>`;
+    BIOS.forEach(b=>{html+=`<div style="margin-bottom:16px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><span style="font-size:12px;color:${b.color};font-weight:600">${b.icon} ${b.label}</span><span id="bv_${b.key}" class="mono" style="font-size:18px;font-weight:800;color:${b.color}">${state.bioEntry[b.key]}</span></div><input type="range" min="1" max="10" value="${state.bioEntry[b.key]}" oninput="state.bioEntry.${b.key}=+this.value;document.getElementById('bv_${b.key}').textContent=this.value" style="accent-color:${b.color}"></div>`;});
+    html+=`<div style="display:flex;gap:10px;margin-top:8px"><button class="btn-primary" onclick="saveBio()" style="flex:1">Save</button><button class="btn-ghost" onclick="closeBioModal()">Cancel</button></div></div></div>`;
+  }
+
+  app.innerHTML=html;
+
+  // Post-render
+  if(state.view==='chat'&&state.subView==='chat'){const el=document.getElementById('chatEnd');if(el)el.scrollIntoView({behavior:'smooth'});}
 }
 
-function renderStackView() {
-   return `<div style="display:flex;gap:8px;overflow-x:auto;padding-bottom:16px;margin-bottom:8px">
-    ${CATEGORIES.map(cat=>`<button class="pill ${state.filter===cat?'active':''}" onclick="state.filter='${cat}'; triggerHaptic(); render()">${cat}</button>`).join('')}
-    </div>
-    <div style="display:flex;flex-direction:column;gap:12px">
-    ${activeSupps().filter(s=>state.filter==="All"||s.category===state.filter).map((s,i)=> {
-        const c = CAT[s.category]?.accent || '#fff'; const t = isTaken(s.id);
-        return `<div class="glass hoverable fade-in" style="animation-delay:${i*0.05}s; ${t?`border-color:${c}55; box-shadow: 0 4px 20px ${c}22;`:''}">
-           <div style="display:flex; justify-content:space-between; align-items:center;">
-              <div>
-                  <h3 style="font-size: 18px; color: ${t ? '#fff' : c};">${s.name}</h3>
-                  <div class="sup-tag" style="display:inline-block; margin-top:8px;">${s.dose} · ${s.timing}</div>
-              </div>
-              <div class="check-circle ${t?'taken':''}" onclick="toggleTaken('${s.id}')" style="${t?`border-color:${c};background:${c}33;color:${c}`:''}">${t?'✓':''}</div>
-           </div>
-        </div>`;
-    }).join('')}
-    </div>`;
-}
-
-function renderBioView() { return `<div class="glass fade-in"><h2 class="label" style="text-align:center; padding: 40px;">BIO TRACKING UI <br> (Ported seamlessly)</h2></div>`; }
-function renderChatView() { return `<div class="glass fade-in"><h2 class="label" style="text-align:center; padding: 40px;">CLAUDE AI CONNECTED</h2></div>`; }
-
-// Actions
-window.nav = function(v) { triggerHaptic(); state.view = v; render(); };
-window.toggleSettings = function() { triggerHaptic(); state.showSettings = !state.showSettings; render(); };
-
-// Data Portability (New Features)
-window.exportData = function() {
-    triggerHaptic('success');
-    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state));
-    const downloadAnchorNode = document.createElement('a');
-    downloadAnchorNode.setAttribute("href",     dataStr);
-    downloadAnchorNode.setAttribute("download", "protocol_backup_" + todayStr() + ".json");
-    document.body.appendChild(downloadAnchorNode); // required for firefox
-    downloadAnchorNode.click();
-    downloadAnchorNode.remove();
+// ── Actions ──────────────────────────────────────────────
+function escapeHtml(s){return eH(s);}
+window.goToTemplates=function(){if(!state.onboardName.trim())return;state.onboardStep="template";render();};
+window.selectTemplate=function(key){state.selectedTemplate=key;render();};
+window.completeOnboarding=function(){
+  if(!state.selectedTemplate)return;
+  const tmpl=TEMPLATES[state.selectedTemplate];
+  const profile={name:state.onboardName.trim(),createdAt:new Date().toISOString(),template:state.selectedTemplate};
+  state.profile=profile;state.onboarded=true;
+  state.supplements=tmpl.supplements.map(s=>({...s,id:Date.now().toString()+Math.random().toString(36).slice(2,6)}));
+  state.log={};state.chat={};state.bio={};
+  saveJSON("p-profile",profile);persist();render();
+};
+window.resetProfile=function(){
+  if(!confirm("This will erase all your data. Continue?"))return;
+  ['p-profile','p-supps','p-log','p-chat','p-bio','p-journal','p-insights'].forEach(k=>localStorage.removeItem(k));
+  Object.assign(state,{onboarded:false,profile:null,onboardStep:"name",onboardName:"",selectedTemplate:null,supplements:[],log:{},chat:[],bio:{},journal:{},view:"command",subView:"chat"});
+  closeSettings();render();
+};
+window.nav=function(v){state.view=v;state.showAdd=false;render();};
+window.setFilter=function(f){state.filter=f;render();};
+window.toggleTaken=toggleTaken;
+window.openAdd=function(){state.showAdd=true;state.editId=null;state.form={name:'',dose:'',timing:'Morning',category:'Performance',notes:'',cost:'',remaining:'',fasted:true};render();};
+window.closeAdd=function(){state.showAdd=false;render();};
+window.startEdit=function(id){const s=state.supplements.find(x=>x.id===id);if(!s)return;state.form={name:s.name,dose:s.dose,timing:s.timing,category:s.category,notes:s.notes,cost:s.cost?.toString()||'',remaining:s.remaining?.toString()||'',fasted:s.fasted!==false};state.editId=id;state.showAdd=true;render();};
+window.addOrUpdate=function(){
+  const f=state.form;if(!f.name||!f.dose)return;
+  const entry={...f,cost:parseFloat(f.cost)||0,remaining:parseInt(f.remaining)||0};
+  if(state.editId){state.supplements=state.supplements.map(s=>s.id===state.editId?{...s,...entry}:s);state.editId=null;}
+  else{state.supplements.push({...entry,id:Date.now().toString(),active:true});}
+  state.form={name:'',dose:'',timing:'Morning',category:'Performance',notes:'',cost:'',remaining:'',fasted:true};
+  state.showAdd=false;state.view='stack';persist();render();toast('Stack updated','success');
+};
+window.deleteSup=function(){
+  if(!state.editId)return;
+  state.supplements=state.supplements.filter(s=>s.id!==state.editId);
+  state.editId=null;state.showAdd=false;state.view='stack';persist();render();toast('Removed from stack','info');
+};
+window.setChatInput=function(q){state.chatInput=q;render();const el=document.getElementById('chatInput');if(el)el.focus();};
+window.clearChat=function(){state.chat=[];persist();render();};
+window.openBioModal=function(){state.showBioModal=true;render();};
+window.closeBioModal=function(){state.showBioModal=false;render();};
+window.saveBio=function(){state.bio[todayStr()]={...state.bioEntry};state.showBioModal=false;persist();render();toast('Biomarkers logged','success');};
+window.openSettings=function(){state.showSettings=true;render();};
+window.closeSettings=function(){state.showSettings=false;render();};
+window.saveJournal=function(){
+  const val=state.journalInput.trim()||document.getElementById('journalInput')?.value.trim();
+  if(!val)return;state.journal[todayStr()]=val;state.journalInput='';persist();render();toast('Journal saved','success');
+};
+window.requestNotifications=function(){
+  if(!('Notification' in window)){toast('Notifications not supported','error');return;}
+  Notification.requestPermission().then(p=>{p==='granted'?toast('Notifications enabled','success'):toast('Permission denied','error');render();});
 };
 
-window.importData = function(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        try {
-            const importedState = JSON.parse(e.target.result);
-            if (importedState.supplements) {
-                state = importedState;
-                persist();
-                triggerHaptic('success');
-                alert("Protocol Restored Successfully!");
-                state.showSettings = false;
-                render();
-            }
-        } catch (err) { alert("Invalid Protocol File"); }
-    };
-    reader.readAsText(file);
+// ── Streaming Chat ───────────────────────────────────────
+window.sendChat=async function(){
+  if(!state.chatInput.trim()||state.chatLoading)return;
+  const msg=state.chatInput.trim();
+  state.chat.push({role:'user',content:msg});
+  state.chatInput='';state.chatLoading=true;
+  persist();render();
+  const sys=buildCtx();
+  const history=state.chat.slice(-12).map(m=>({role:m.role,content:m.content}));
+  // Add streaming placeholder
+  state.chat.push({role:'assistant',content:'',streaming:true});
+  const msgIdx=state.chat.length-1;
+  render();
+  try{
+    const res=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({system:sys,messages:history,stream:true})});
+    if(!res.ok)throw new Error('API error');
+    await streamSSE(res,
+      text=>{
+        state.chat[msgIdx].content=text;
+        const el=document.getElementById(`chat-msg-${msgIdx}`);
+        if(el)el.innerHTML=fmtChat(text)+'<span class="stream-cursor">▋</span>';
+        const end=document.getElementById('chatEnd');if(end)end.scrollIntoView({behavior:'smooth'});
+      },
+      text=>{state.chat[msgIdx]={role:'assistant',content:text||'No response.',streaming:false};}
+    );
+  }catch(e){state.chat[msgIdx]={role:'assistant',content:'Connection error. Check your network and try again.',streaming:false};}
+  state.chatLoading=false;persist();render();
 };
 
-// Boot
+// ── Generate Insights ────────────────────────────────────
+window.generateInsights=async function(){
+  state.insightsLoading=true;state.insightsContent='';render();
+  const sys=buildCtx();
+  const prompt=`Generate a comprehensive weekly performance report for ${state.profile?.name||'the user'}.
+
+Format with these exact sections using ## headers:
+## Performance Summary
+## Stack Analysis
+## What's Working
+## Optimization Opportunities
+## This Week's Focus
+
+Reference specific compounds by name. Be evidence-based and actionable. Keep each section concise but substantive.`;
+  try{
+    const res=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({system:sys,messages:[{role:'user',content:prompt}],stream:true,max_tokens:2000})});
+    if(!res.ok)throw new Error('API error');
+    await streamSSE(res,
+      text=>{const el=document.getElementById('insights-stream');if(el)el.innerHTML=fmtChat(text)+'<span class="stream-cursor">▋</span>';},
+      text=>{state.insightsContent=text||'Failed to generate insights.';}
+    );
+  }catch(e){state.insightsContent='Connection error. Try again.';}
+  state.insightsLoading=false;persist();render();
+};
+
+// ── Analyze Stack ────────────────────────────────────────
+window.analyzeStack=async function(){
+  state.analyzeLoading=true;state.analyzeContent='';render();
+  const sys=buildCtx();
+  const prompt=`Perform a detailed analysis of this supplement stack. Use ## headers for:
+## Potential Interactions
+## Redundancies & Overlaps
+## Coverage Gaps
+## Timing Conflicts
+## Priority Recommendations
+
+For each interaction or issue, cite the mechanism. Be direct — prioritize the highest-impact findings.`;
+  try{
+    const res=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({system:sys,messages:[{role:'user',content:prompt}],stream:true,max_tokens:2000})});
+    if(!res.ok)throw new Error('API error');
+    await streamSSE(res,
+      text=>{const el=document.getElementById('analyze-stream');if(el)el.innerHTML=fmtChat(text)+'<span class="stream-cursor">▋</span>';},
+      text=>{state.analyzeContent=text||'Failed to run analysis.';}
+    );
+  }catch(e){state.analyzeContent='Connection error. Try again.';}
+  state.analyzeLoading=false;render();
+};
+
+// ── Swipe Gestures ───────────────────────────────────────
+function initSwipe(){
+  let sx=0,sy=0;
+  document.addEventListener('touchstart',e=>{sx=e.touches[0].clientX;sy=e.touches[0].clientY;},{passive:true});
+  document.addEventListener('touchend',e=>{
+    if(state.showBioModal||state.showSettings||state.showAdd)return;
+    const dx=e.changedTouches[0].clientX-sx,dy=e.changedTouches[0].clientY-sy;
+    if(Math.abs(dx)<60||Math.abs(dy)>Math.abs(dx)*0.8)return;
+    const idx=VIEWS.indexOf(state.view);if(idx===-1)return;
+    if(dx<0&&idx<VIEWS.length-1){state.view=VIEWS[idx+1];render();}
+    else if(dx>0&&idx>0){state.view=VIEWS[idx-1];render();}
+  },{passive:true});
+}
+
+// ── PWA Install ──────────────────────────────────────────
+let _pwaPrompt=null;
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();_pwaPrompt=e;document.getElementById('pwa-banner').style.display='flex';});
+window.installPWA=function(){if(!_pwaPrompt)return;_pwaPrompt.prompt();_pwaPrompt.userChoice.then(r=>{if(r.outcome==='accepted')toast('PROTOCOL installed!','success');_pwaPrompt=null;document.getElementById('pwa-banner').style.display='none';});};
+
+// ── Boot ─────────────────────────────────────────────────
 render();
 initParticles();
+initSwipe();
+setInterval(()=>{const el=document.getElementById('live-clock');if(el)el.textContent=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});},1000);
 </script>
 </body>
 </html>
